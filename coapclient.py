@@ -2,9 +2,12 @@
 import getopt
 import socket
 import sys
+import cbor
+import json
 
 from coapthon.client.helperclient import HelperClient
 from coapthon.utils import parse_uri
+from coapthon import defines
 
 __author__ = 'Giacomo Tanganelli'
 
@@ -117,6 +120,14 @@ def main():  # pragma: no cover
             sys.exit(2)
         response = client.get(path, None, None, **ct)
         print((response.pretty_print()))
+        if response.content_type == defines.Content_types["application/cbor"]:
+            json_data = cbor.loads(response.payload)
+            json_string = json.dumps(json_data, indent=2, sort_keys=True)
+            print (json_string)
+        if response.content_type == defines.Content_types["application/vnd.ocf+cbor"]:
+            json_data = cbor.loads(response.payload)
+            json_string = json.dumps(json_data, indent=2, sort_keys=True)
+            print (json_string)
         client.stop()
     elif op == "OBSERVE":
         if path is None:
@@ -145,6 +156,14 @@ def main():  # pragma: no cover
         response = client.post(path, payload, None, None, **ct)
         
         print((response.pretty_print()))
+        if response.content_type == defines.Content_types["application/cbor"]:
+            json_data = cbor.loads(response.payload)
+            json_string = json.dumps(json_data, indent=2, sort_keys=True)
+            print (json_string)
+        if response.content_type == defines.Content_types["application/vnd.ocf+cbor"]:
+            json_data = cbor.loads(response.payload)
+            json_string = json.dumps(json_data, indent=2, sort_keys=True)
+            print (json_string)
         client.stop()
     elif op == "PUT":
         if path is None:
@@ -161,6 +180,14 @@ def main():  # pragma: no cover
     elif op == "DISCOVER":
         response = client.discover()
         print((response.pretty_print()))
+        if response.content_type == defines.Content_types["application/cbor"]:
+            json_data = cbor.loads(response.payload)
+            json_string = json.dumps(json_data, indent=2, sort_keys=True)
+            print (json_string)
+        if response.content_type == defines.Content_types["application/vnd.ocf+cbor"]:
+            json_data = cbor.loads(response.payload)
+            json_string = json.dumps(json_data, indent=2, sort_keys=True)
+            print (json_string)
         client.stop()
     else:
         print("Operation not recognized")
