@@ -265,7 +265,8 @@ Content_types = {
     "application/octet-stream": 42,
     "application/exi": 47,
     "application/json": 50,
-    "application/cbor": 60
+    "application/cbor": 60,
+    "application/vnd.ocf+cbor": 10000
 }
 
 COAP_PREFACE = "coap://"
