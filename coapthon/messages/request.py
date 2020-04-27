@@ -116,11 +116,11 @@ class Request(Message):
 
         :param value: the Accept value
         """
-        if value in list(defines.Content_types.values()):
-            option = Option()
-            option.number = defines.OptionRegistry.ACCEPT.number
-            option.value = value
-            self.add_option(option)
+        #if value in list(defines.Content_types.values()):
+        option = Option()
+        option.number = defines.OptionRegistry.ACCEPT.number
+        option.value = value
+        self.add_option(option)
 
     @accept.deleter
     def accept(self):

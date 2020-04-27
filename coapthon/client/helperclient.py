@@ -94,8 +94,12 @@ class HelperClient(object):
         request.token = generate_random_token(2)
 
         for k, v in kwargs.items():
+            
+            print ("get", k,v)
             if hasattr(request, k):
+                print ("get : setting:", k,v)
                 setattr(request, k, v)
+              
 
         return self.send_request(request, callback, timeout)
 
@@ -112,6 +116,7 @@ class HelperClient(object):
         request.token = generate_random_token(2)
 
         for k, v in kwargs.items():
+            print ("get_none", k,v)
             if hasattr(request, k):
                 setattr(request, k, v)
 

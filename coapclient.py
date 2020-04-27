@@ -17,6 +17,7 @@ def usage():  # pragma: no cover
     print("\t-o, --operation=\tGET|PUT|POST|DELETE|DISCOVER|OBSERVE")
     print("\t-p, --path=\t\t\tPath of the request")
     print("\t-P, --payload=\t\tPayload of the request")
+    print("\t-c, --contenttype=\t\tcontenttype of the request")
     print("\t-f, --payload-file=\t\tFile with payload of the request")
 
 
@@ -54,9 +55,14 @@ def main():  # pragma: no cover
     op = None
     path = None
     payload = None
+    content_type = None
+    #ct = {'content_type': defines.Content_types["application/link-format"]}
+    ct = {}
+    
+    
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "ho:p:P:f:", ["help", "operation=", "path=", "payload=",
-                                                               "payload_file="])
+        opts, args = getopt.getopt(sys.argv[1:], "ho:p:P:f:c:", ["help", "operation=", "path=", "payload=",
+                                                               "payload_file=","content-type"])
     except getopt.GetoptError as err:
         # print help information and exit:
         print((str(err)))  # will print something like "option -a not recognized"
@@ -69,6 +75,9 @@ def main():  # pragma: no cover
             path = a
         elif o in ("-P", "--payload"):
             payload = a
+        elif o in ("-c", "--content-type"):
+            ct['accept'] = a
+            print (" content type request : ", ct)
         elif o in ("-f", "--payload-file"):
             with open(a, 'r') as f:
                 payload = f.read()
@@ -106,7 +115,7 @@ def main():  # pragma: no cover
             print("Path cannot be empty for a GET request")
             usage()
             sys.exit(2)
-        response = client.get(path)
+        response = client.get(path, None, None, **ct)
         print((response.pretty_print()))
         client.stop()
     elif op == "OBSERVE":
@@ -133,7 +142,8 @@ def main():  # pragma: no cover
             print("Payload cannot be empty for a POST request")
             usage()
             sys.exit(2)
-        response = client.post(path, payload)
+        response = client.post(path, payload, None, None, **ct)
+        
         print((response.pretty_print()))
         client.stop()
     elif op == "PUT":
