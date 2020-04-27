@@ -11,6 +11,18 @@ __author__ = 'Giacomo Tanganelli'
 
 logger = logging.getLogger(__name__)
 
+def is_binary(content_type):
+  if content_type == defines.Content_types["application/octet-stream"]:
+    return True
+  if content_type == defines.Content_types["application/exi"]:
+    return True
+  if content_type == defines.Content_types["application/cbor"]:
+    return True
+  if content_type == defines.Content_types["application/vnd.ocf+cbor"]:
+    return True
+  if content_type == defines.Content_types["application/vnd.ocf+cbor"]:
+    return True
+  return False
 
 class Serializer(object):
     """
@@ -114,7 +126,7 @@ class Serializer(object):
                     message.payload = ""
                     payload = values[pos:]
                     try:
-                        if message.payload_type == defines.Content_types["application/octet-stream"]:
+                        if is_binary(message.payload_type):
                             message.payload = payload
                         else:
                             message.payload = payload.decode("utf-8")

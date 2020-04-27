@@ -93,7 +93,9 @@ class CoAP(object):
                 # Allow multiple copies of this program on one machine
                 # (not strictly needed)
                 self._socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-                self._socket.bind((defines.ALL_COAP_NODES_IPV6, self.server_address[1]))
+                #self._socket.bind((defines.ALL_COAP_NODES_IPV6, self.server_address[1]))
+                #self._socket.bind("", self.server_address[1])
+                self._socket.bind(self.server_address[1])
 
                 addrinfo_multicast = socket.getaddrinfo(defines.ALL_COAP_NODES_IPV6, 5683)[0]
                 group_bin = socket.inet_pton(socket.AF_INET6, addrinfo_multicast[4][0])
