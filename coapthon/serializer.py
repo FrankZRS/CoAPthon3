@@ -131,7 +131,8 @@ class Serializer(object):
                         else:
                             message.payload = payload.decode("utf-8")
                     except AttributeError:
-                        message.payload = payload.decode("utf-8")
+                        message.payload = payload
+                        #message.payload = payload.decode("utf-8")
                     pos += len(payload)
 
             return message

@@ -61,6 +61,7 @@ def main():  # pragma: no cover
     content_type = None
     #ct = {'content_type': defines.Content_types["application/link-format"]}
     ct = {}
+    ct['accept'] = 0
     
     
     try:
@@ -80,7 +81,7 @@ def main():  # pragma: no cover
             payload = a
         elif o in ("-c", "--content-type"):
             ct['accept'] = a
-            print (" content type request : ", ct)
+            print ("content type request : ", ct)
         elif o in ("-f", "--payload-file"):
             with open(a, 'r') as f:
                 payload = f.read()
@@ -120,13 +121,20 @@ def main():  # pragma: no cover
             sys.exit(2)
         response = client.get(path, None, None, **ct)
         print((response.pretty_print()))
+        if response.content_type == defines.Content_types["application/json"]:
+            json_data = json.loads(response.payload)
+            json_string = json.dumps(json_data, indent=2, sort_keys=True)
+            print ("JSON ::")
+            print (json_string)
         if response.content_type == defines.Content_types["application/cbor"]:
             json_data = cbor.loads(response.payload)
             json_string = json.dumps(json_data, indent=2, sort_keys=True)
+            print ("JSON ::")
             print (json_string)
         if response.content_type == defines.Content_types["application/vnd.ocf+cbor"]:
             json_data = cbor.loads(response.payload)
             json_string = json.dumps(json_data, indent=2, sort_keys=True)
+            print ("JSON ::")
             print (json_string)
         client.stop()
     elif op == "OBSERVE":
@@ -153,6 +161,22 @@ def main():  # pragma: no cover
             print("Payload cannot be empty for a POST request")
             usage()
             sys.exit(2)
+        print ( "payload for POST (ascii):", payload )
+        print (ct['accept'] )
+        if ct['accept'] == str(60):
+            print ("hello")
+            json_data = json.loads(payload)
+            print ( "payload for POST (json):", json_data )
+            cbor_data = cbor.dumps(json_data)
+            print ( "payload for POST (cbor):", cbor_data )
+            payload = bytes(cbor_data)
+            print ("binary::")
+            print (payload)
+        #if ct['accept'] == defines.Content_types["application/vnd.ocf+cbor"]:
+        #    json_data = json.loads(payload)
+        #    cbor_data = cbor.loads(json_data)
+        #    payload = cbor_data
+            
         response = client.post(path, payload, None, None, **ct)
         
         print((response.pretty_print()))
