@@ -7,6 +7,7 @@ from coapthon import defines
 from coapthon.client.coap import CoAP
 from coapthon.messages.request import Request
 from coapthon.utils import generate_random_token
+import socket
 
 __author__ = 'Giacomo Tanganelli'
 
@@ -24,7 +25,13 @@ class HelperClient(object):
         :param cb_ignore_read_exception: Callback function to handle exception raised during the socket read operation
         :param cb_ignore_write_exception: Callback function to handle exception raised during the socket write operation 
         """
-        self.server = server
+        #self.server = server
+        # bug fix:check if host is a domain, if true, convert server domain into ip
+        server_ip = socket.getaddrinfo(server[0], None)[0][4][0]
+        if server_ip == server[0]:
+            self.server = server
+        else:
+            self.server = (server_ip, server[1])
         self.protocol = CoAP(self.server, random.randint(1, 65535), self._wait_response, sock=sock,
                              cb_ignore_read_exception=cb_ignore_read_exception, cb_ignore_write_exception=cb_ignore_write_exception)
         self.queue = Queue()
@@ -113,11 +120,12 @@ class HelperClient(object):
         :return: the response
         """
         request = self.mk_request_non(defines.Codes.GET, path)
-        request.token = generate_random_token(2)
+        #request.token = generate_random_token(2)
 
         for k, v in kwargs.items():
             print ("get_none", k,v)
             if hasattr(request, k):
+                print ("get_none", k,v)
                 setattr(request, k, v)
 
         return self.send_request(request, callback, timeout)
@@ -213,11 +221,19 @@ class HelperClient(object):
         :param timeout: the timeout of the request
         :return: the response
         """
-        request = self.mk_request(defines.Codes.GET, defines.DISCOVERY_URL)
+        #request = self.mk_request(defines.Codes.GET, defines.DISCOVERY_URL)
+        request = self.mk_request(defines.Codes.GET, "/oic/d")
+        request.token = generate_random_token(2)
 
         for k, v in kwargs.items():
+            print ("discover : has:", k,v)
             if hasattr(request, k):
-                setattr(request, k, v)
+                #print ("discover : setting:", k,v)
+                try:
+                    print ("discover : setting:", k,v)
+                    setattr(request, k, v)
+                except:
+                    pass
 
         return self.send_request(request, callback, timeout)
 
@@ -280,5 +296,15 @@ class HelperClient(object):
         request.uri_path = path
         request.type = defines.Types["NON"]
         return request
+        
+    # feature update : ping
+    def ping(self):
+        """
+        send a CON empty message to server to trigger RST response (CoAP ping)
+        """
+        empty = Request()
+        empty.destination = self.server
+        empty.type = 0
+        self.send_empty(empty)
 
 

@@ -122,3 +122,38 @@ class Response(Message):
         Delete the MaxAge of the response.
         """
         self.del_option_by_number(defines.OptionRegistry.MAX_AGE.number)
+        
+    @property
+    def ocf_content_format_version(self):
+        """
+        Return the OCF_CONTENT_FORMAT_VERSION of the response.
+
+        :rtype : int
+        :return: the OCF_CONTENT_FORMAT_VERSION option
+        """
+        value = defines.OptionRegistry.OCF_CONTENT_FORMAT_VERSION.default
+        for option in self.options:
+            if option.number == defines.OptionRegistry.OCF_CONTENT_FORMAT_VERSION.number:
+                value = int(option.value)
+        return value
+
+    @ocf_content_format_version.setter
+    def ocf_content_format_version(self, value):
+        """
+        Set the OCF_CONTENT_FORMAT_VERSION of the response.
+
+        :type value: int
+        :param value: the OCF_CONTENT_FORMAT_VERSION option
+        """
+        option = Option()
+        option.number = defines.OptionRegistry.OCF_CONTENT_FORMAT_VERSION.number
+        option.value = int(value)
+        self.del_option_by_number(defines.OptionRegistry.OCF_CONTENT_FORMAT_VERSION.number)
+        self.add_option(option)
+
+    @ocf_content_format_version.deleter
+    def ocf_content_format_version(self):
+        """
+        Delete the OCF_CONTENT_FORMAT_VERSION of the response.
+        """
+        self.del_option_by_number(defines.OptionRegistry.OCF_CONTENT_FORMAT_VERSION.number)

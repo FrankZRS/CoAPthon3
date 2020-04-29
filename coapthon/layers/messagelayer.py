@@ -105,10 +105,20 @@ class MessageLayer(object):
             host, port = response.source
         except AttributeError:
             return
+        #print (" receive_response mid:", response.mid)
+        #print (" receive_response token:", response.token)
+        #print (" receive_response source:", response.source)
         key_mid = str_append_hash(host, port, response.mid)
-        key_mid_multicast = str_append_hash(defines.ALL_COAP_NODES, port, response.mid)
+        key_mid_multicast = str_append_hash(defines.ALL_COAP_NODES, 5683, response.mid)
+        key_mid_multicast_ipv6 = str_append_hash(defines.ALL_COAP_NODES_IPV6, 5683, response.mid)
+        key_mid_multicast_ocf = str_append_hash(defines.ALL_OCF_NODES_IPV6, 5683, response.mid)
         key_token = str_append_hash(host, port, response.token)
-        key_token_multicast = str_append_hash(defines.ALL_COAP_NODES, port, response.token)
+        key_token_multicast = str_append_hash(defines.ALL_COAP_NODES, 5683, response.token)
+        key_token_multicast_ipv6 = str_append_hash(defines.ALL_COAP_NODES_IPV6, 5683, response.token)
+        key_token_multicast_ocf = str_append_hash(defines.ALL_OCF_NODES_IPV6, 5683, response.token)
+        #print (" receive_response ipv4:", key_token_multicast)
+        #print (" receive_response ipv6:", key_token_multicast_ipv6)
+        #print (" receive_response ocf:", key_token_multicast_ocf) 
         if key_mid in list(self._transactions.keys()):
             transaction = self._transactions[key_mid]
             if response.token != transaction.request.token:
@@ -123,9 +133,21 @@ class MessageLayer(object):
             if response.token != transaction.request.token:
                 logger.warning("Tokens does not match -  response message " + str(host) + ":" + str(port))
                 return None, False
+        elif key_token_multicast_ipv6 in self._transactions_token:
+            transaction = self._transactions_token[key_token_multicast_ipv6]
+            if response.token != transaction.request.token:
+                logger.warning("Tokens does not match -  response message " + str(host) + ":" + str(port))
+                return None, False
+        elif key_token_multicast_ocf in self._transactions_token:
+            transaction = self._transactions_token[key_token_multicast_ocf]
+            if response.token != transaction.request.token:
+                logger.warning("Tokens does not match -  response message " + str(host) + ":" + str(port))
+                return None, False
         else:
             logger.warning("Un-Matched incoming response message " + str(host) + ":" + str(port))
+            print (self._transactions.keys())
             return None, False
+            #return transaction, False
         send_ack = False
         if response.type == defines.Types["CON"]:
             send_ack = True
@@ -217,6 +239,11 @@ class MessageLayer(object):
         self._transactions[key_mid] = transaction
 
         key_token = str_append_hash(host, port, request.token)
+        #print ("send_request token:", key_token)
+        #print ("send_request host:", host)
+        #print ("send_request port:", port)
+        #print ("send_request key mid:", key_mid)
+        #print ("send_request request mid:", request.mid)
         self._transactions_token[key_token] = transaction
 
         return self._transactions[key_mid]

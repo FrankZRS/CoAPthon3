@@ -93,14 +93,28 @@ class CoAP(object):
                 # Allow multiple copies of this program on one machine
                 # (not strictly needed)
                 self._socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-                #self._socket.bind((defines.ALL_COAP_NODES_IPV6, self.server_address[1]))
+                #self._socket.bind((defines.ALL_COAP_NODES_IPV6, 5683))
+                #self._socket.bind((defines.ALL_OCF_NODES_IPV6, 5683))
                 #self._socket.bind("", self.server_address[1])
-                self._socket.bind(self.server_address[1])
+                self._socket.bind(self.server_address)
 
                 addrinfo_multicast = socket.getaddrinfo(defines.ALL_COAP_NODES_IPV6, 5683)[0]
                 group_bin = socket.inet_pton(socket.AF_INET6, addrinfo_multicast[4][0])
                 mreq = group_bin + struct.pack('@I', 0)
-                self._socket.setsockopt(socket.IPPROTO_IPV6, socket.IPV6_JOIN_GROUP, mreq)
+                #self._socket.setsockopt(socket.IPPROTO_IPV6, socket.IPV6_JOIN_GROUP, mreq)
+                # https://bugs.python.org/issue29515
+                self._socket.setsockopt(41, socket.IPV6_JOIN_GROUP, mreq)
+                
+                
+
+                addrinfo_multicast = socket.getaddrinfo(defines.ALL_OCF_NODES_IPV6, 5683)[0]
+                group_bin = socket.inet_pton(socket.AF_INET6, addrinfo_multicast[4][0])
+                mreq = group_bin + struct.pack('@I', 0)
+                #self._socket.setsockopt(socket.IPPROTO_IPV6, socket.IPV6_JOIN_GROUP, mreq)
+                # https://bugs.python.org/issue29515
+                self._socket.setsockopt(41, socket.IPV6_JOIN_GROUP, mreq)
+                
+                
                 self._unicast_socket = socket.socket(socket.AF_INET6, socket.SOCK_DGRAM)
                 self._unicast_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
                 self._unicast_socket.bind(self.server_address)

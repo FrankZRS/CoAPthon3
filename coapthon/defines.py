@@ -30,6 +30,9 @@ ALL_COAP_NODES = "224.0.1.187"
 
 ALL_COAP_NODES_IPV6 = "FF00::FD"
 
+ALL_OCF_NODES_IPV6 = "FF05::158"
+#ALL_OCF_MCAST_IPV6 = "FF05::158"
+
 MAX_PAYLOAD = 1024
 
 MAX_NON_NOTIFICATIONS = 10
@@ -128,6 +131,8 @@ class OptionRegistry(object):
     PROXY_SCHEME =  OptionItem(39, "Proxy-Schema",  STRING,  False, None)
     SIZE1 =         OptionItem(60, "Size1",         INTEGER, False, None)
     NO_RESPONSE =   OptionItem(258, "No-Response",  INTEGER, False, None)
+    OCF_ACCEPT_CONTENT_FORMAT_VERSION =   OptionItem(2049, "OCF-Accept-Content-Format-Version",  INTEGER, False, None)
+    OCF_CONTENT_FORMAT_VERSION =   OptionItem(2053, "OCF-Content-Format-Version",  INTEGER, False, None)
     RM_MESSAGE_SWITCHING = OptionItem(65524, "Routing", OPAQUE, False, None)
 
     LIST = {
@@ -151,8 +156,9 @@ class OptionRegistry(object):
         39: PROXY_SCHEME,
         60: SIZE1,
         258: NO_RESPONSE,
+        2049: OCF_ACCEPT_CONTENT_FORMAT_VERSION,
+        2053: OCF_CONTENT_FORMAT_VERSION,
         65524: RM_MESSAGE_SWITCHING
-
     }
 
     @staticmethod
