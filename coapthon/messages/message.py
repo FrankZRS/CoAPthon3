@@ -47,7 +47,7 @@ class Message(object):
         :raise AttributeError: if value is not 1
         """
         if not isinstance(v, int) or v != 1:
-            raise AttributeError
+            raise AttributeError("incorrect CoAP version")
         self._version = v
 
     @property
@@ -69,7 +69,7 @@ class Message(object):
         :raise AttributeError: if value is not a valid type
         """
         if value not in list(defines.Types.values()):
-            raise AttributeError
+            raise AttributeError("Attribute has incorrect type")
         self._type = value
 
     @property
@@ -91,7 +91,7 @@ class Message(object):
         :raise AttributeError: if value is not int or cannot be represented on 16 bits.
         """
         if not isinstance(value, int) or value > 65536:
-            raise AttributeError
+            raise AttributeError("attribute does not fit in 16 bits")
         self._mid = value
 
     @mid.deleter
@@ -125,7 +125,7 @@ class Message(object):
         if not isinstance(value, str):
             value = str(value)
         if len(value) > 256:
-            raise AttributeError
+            raise AttributeError("token longer than 256")
         self._token = value
 
     @token.deleter
@@ -201,7 +201,7 @@ class Message(object):
         :raise AttributeError: if value is not a ip and a port.
         """
         if value is not None and (not isinstance(value, tuple) or len(value)) != 2:
-            raise AttributeError
+            raise AttributeError ("destination is not a tuple of ip and port")
         self._destination = value
 
     @property
@@ -224,7 +224,7 @@ class Message(object):
         :raise AttributeError: if value is not a ip and a port.
         """
         if not isinstance(value, tuple) or len(value) != 2:
-            raise AttributeError
+            raise AttributeError("Source incorrect")
         self._source = value
 
     @property
@@ -247,7 +247,7 @@ class Message(object):
         :raise AttributeError: if value is not a valid code
         """
         if value not in list(defines.Codes.LIST.keys()) and value is not None:
-            raise AttributeError
+            raise AttributeError("Code incorrect")
         self._code = value
 
     @property

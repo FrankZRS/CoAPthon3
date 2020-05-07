@@ -192,7 +192,9 @@ class Resource(object):
         if isinstance(p, tuple):
             k = p[0]
             v = p[1]
+            #print ("resource::payload setting content type:",k)
             self.actual_content_type = k
+            #self._content_type = k
             self._payload[k] = v
         else:
             self._payload = {defines.Content_types["text/plain"]: p}

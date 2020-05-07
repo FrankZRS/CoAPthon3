@@ -115,7 +115,7 @@ class OptionRegistry(object):
     IF_MATCH =      OptionItem(1, "If-Match",       OPAQUE,  True, None)
     URI_HOST =      OptionItem(3, "Uri-Host",       STRING,  True, None)
     ETAG =          OptionItem(4, "ETag",           OPAQUE,  True, None)
-    IF_NONE_MATCH = OptionItem(5, "If-None-Match",  OPAQUE, False, None)
+    IF_NONE_MATCH = OptionItem(5, "If-None-Match",  OPAQUE,  False, None)
     OBSERVE =       OptionItem(6, "Observe",        INTEGER, False, 0)
     URI_PORT =      OptionItem(7, "Uri-Port",       INTEGER, False, 5683)
     LOCATION_PATH = OptionItem(8, "Location-Path",  STRING,  True, None)
@@ -131,8 +131,8 @@ class OptionRegistry(object):
     PROXY_SCHEME =  OptionItem(39, "Proxy-Schema",  STRING,  False, None)
     SIZE1 =         OptionItem(60, "Size1",         INTEGER, False, None)
     NO_RESPONSE =   OptionItem(258, "No-Response",  INTEGER, False, None)
-    OCF_ACCEPT_CONTENT_FORMAT_VERSION =   OptionItem(2049, "OCF-Accept-Content-Format-Version",  INTEGER, False, None)
-    OCF_CONTENT_FORMAT_VERSION =   OptionItem(2053, "OCF-Content-Format-Version",  INTEGER, False, None)
+    OCF_ACCEPT_CONTENT_FORMAT_VERSION =   OptionItem(2049, "OCF-Accept-Content-Format-Version",  INTEGER, False, 2048)
+    OCF_CONTENT_FORMAT_VERSION =   OptionItem(2053, "OCF-Content-Format-Version",  INTEGER, False, 2048)
     RM_MESSAGE_SWITCHING = OptionItem(65524, "Routing", OPAQUE, False, None)
 
     LIST = {

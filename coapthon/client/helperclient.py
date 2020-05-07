@@ -222,7 +222,11 @@ class HelperClient(object):
         :return: the response
         """
         #request = self.mk_request(defines.Codes.GET, defines.DISCOVERY_URL)
-        request = self.mk_request(defines.Codes.GET, "/oic/d")
+        #request = self.mk_request(defines.Codes.GET, "/oic/p")
+        #mk_request_non
+        request = self.mk_request_non(defines.Codes.GET, "/oic/p")
+        request = self.mk_request_non(defines.Codes.GET, "/oic/d")
+        #request = self.mk_request_non(defines.Codes.GET, "/oic/res")
         request.token = generate_random_token(2)
 
         for k, v in kwargs.items():

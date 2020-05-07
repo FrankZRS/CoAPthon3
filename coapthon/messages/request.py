@@ -301,3 +301,36 @@ class Request(Message):
         """
         self.del_option_by_number(defines.OptionRegistry.OCF_ACCEPT_CONTENT_FORMAT_VERSION.number)
 
+
+
+    @property
+    def ocf_content_format_version(self):
+        """
+        Get the ocf_content_format_version option of a request.
+
+        :return: True, if ocf_content_format_version is present
+        :rtype : bool
+        """
+        for option in self.options:
+            if option.number == defines.OptionRegistry.OCF_CONTENT_FORMAT_VERSION.number:
+                return True
+        return False
+
+    @ocf_content_format_version.setter
+    def ocf_content_format_version(self, value):
+        """
+        Add the ocf_content_format_version option to the request.
+        """
+        option = Option()
+        print (" setting ocf_content_format_version :", int(value))
+        option.number = defines.OptionRegistry.OCF_CONTENT_FORMAT_VERSION.number
+        option.value = int(value)
+        self.add_option(option)
+
+
+    @ocf_content_format_version.deleter
+    def ocf_content_format_version(self):
+        """
+        Delete the ocf_content_format_version option in the request.
+        """
+        self.del_option_by_number(defines.OptionRegistry.OCF_CONTENT_FORMAT_VERSION.number)

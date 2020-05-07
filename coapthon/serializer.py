@@ -67,6 +67,7 @@ class Serializer(object):
                 s = struct.Struct(fmt)
                 token_value = s.unpack_from(datagram[pos:])[0]
                 message.token = token_value.decode("utf-8")
+                #message.token = token_value
             else:
                 message.token = None
 
@@ -89,11 +90,13 @@ class Serializer(object):
                     except KeyError:
                         (opt_critical, _, _) = defines.OptionRegistry.get_option_flags(current_option)
                         if opt_critical:
+                            print ("Critical option unknown", current_option)
                             raise AttributeError("Critical option %s unknown" % current_option)
                         else:
                             # If the non-critical option is unknown
                             # (vendor-specific, proprietary) - just skip it
                             #log.err("unrecognized option %d" % current_option)
+                            print("unrecognized option %d", current_option)
                             pass
                     else:
                         if option_length == 0:
@@ -122,6 +125,7 @@ class Serializer(object):
 
                     if length_packet <= pos:
                         # log.err("Payload Marker with no payload")
+                        print ("Payload Marker with no payload")
                         raise AttributeError("Packet length %s, pos %s" % (length_packet, pos))
                     message.payload = ""
                     payload = values[pos:]
@@ -136,9 +140,11 @@ class Serializer(object):
                     pos += len(payload)
 
             return message
-        except AttributeError:
+        except AttributeError as err:
+            print ("deserialize: attribute error", err)
             return defines.Codes.BAD_REQUEST.number
         except struct.error:
+            print ("deserialize: struct error")
             return defines.Codes.BAD_REQUEST.number
 
     @staticmethod
@@ -153,7 +159,8 @@ class Serializer(object):
         """
         fmt = "!BBH"
 
-        if message.token is None or message.token == "":
+        #if message.token is None or message.token == "":
+        if message.token is None:
             tkl = 0
         else:
             tkl = len(message.token)
@@ -235,6 +242,8 @@ class Serializer(object):
             if isinstance(payload, bytes):
                 fmt += str(len(payload)) + "s"
                 values.append(payload)
+                #fmt += str(len(payload)) + "B"
+                #values.extend(payload)
             else:
                 fmt += str(len(bytes(payload, "utf-8"))) + "s"
                 values.append(bytes(payload, "utf-8"))
