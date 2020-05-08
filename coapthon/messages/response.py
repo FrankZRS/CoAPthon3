@@ -149,6 +149,7 @@ class Response(Message):
         option.number = defines.OptionRegistry.OCF_CONTENT_FORMAT_VERSION.number
         option.value = int(value)
         self.del_option_by_number(defines.OptionRegistry.OCF_CONTENT_FORMAT_VERSION.number)
+        print ("reponse: ocf_content_format_version (setter)",option)
         self.add_option(option)
 
     @ocf_content_format_version.deleter
@@ -185,6 +186,7 @@ class Response(Message):
         option.number = defines.OptionRegistry.OCF_ACCEPT_CONTENT_FORMAT_VERSION.number
         option.value = int(value)
         self.del_option_by_number(defines.OptionRegistry.OCF_ACCEPT_CONTENT_FORMAT_VERSION.number)
+        print ("response: ocf_accept_content_format_version (setter)",option)
         self.add_option(option)
 
     @ocf_accept_content_format_version.deleter

@@ -6,6 +6,7 @@ from coapthon.messages.response import Response
 from coapthon.messages.option import Option
 from coapthon import defines
 from coapthon.messages.message import Message
+import traceback
 
 __author__ = 'Giacomo Tanganelli'
 
@@ -142,7 +143,9 @@ class Serializer(object):
             return message
         except AttributeError as err:
             print ("deserialize: attribute error", err)
-            return defines.Codes.BAD_REQUEST.number
+            traceback.print_exc()
+            #return defines.Codes.BAD_REQUEST.number
+            ######traceback
         except struct.error:
             print ("deserialize: struct error")
             return defines.Codes.BAD_REQUEST.number
@@ -328,7 +331,10 @@ class Serializer(object):
             pos += 1
         elif h_nibble == 14:
             s = struct.Struct("!H")
-            value = s.unpack_from(values[pos:].to_bytes(2, "big"))[0] + 269
+            if isinstance(values[pos:], bytes):
+                value = s.unpack_from(values[pos:])[0] + 269
+            else:
+                value = s.unpack_from(values[pos:].to_bytes(2, "big"))[0] + 269
             pos += 2
         else:
             raise AttributeError("Unsupported option number nibble " + str(h_nibble))

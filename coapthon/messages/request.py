@@ -291,6 +291,7 @@ class Request(Message):
         #print (" setting ocf_accept_content_format_version", int(value))
         option.number = defines.OptionRegistry.OCF_ACCEPT_CONTENT_FORMAT_VERSION.number
         option.value = int(value)
+        print ("request: ocf_accept_content_format_version (setter)",option)
         self.add_option(option)
 
 
@@ -322,9 +323,10 @@ class Request(Message):
         Add the ocf_content_format_version option to the request.
         """
         option = Option()
-        print (" setting ocf_content_format_version :", int(value))
+        #print (" setting ocf_content_format_version :", int(value))
         option.number = defines.OptionRegistry.OCF_CONTENT_FORMAT_VERSION.number
         option.value = int(value)
+        print ("request: ocf_content_format_version (setter)",option)
         self.add_option(option)
 
 
