@@ -67,8 +67,11 @@ class Serializer(object):
                 fmt = "%ss" % token_length
                 s = struct.Struct(fmt)
                 token_value = s.unpack_from(datagram[pos:])[0]
-                message.token = token_value.decode("utf-8")
-                #message.token = token_value
+                #message.token = token_value.decode("utf-8")
+                try :
+                    message.token = token_value.decode("utf-8")
+                except:
+                    message.token = token_value
             else:
                 message.token = None
 

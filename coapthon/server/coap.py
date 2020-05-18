@@ -94,7 +94,7 @@ class CoAP(object):
                 self._socket.bind(self.server_address)
                 self._socketlist.append(self._socket)
                 
-                ## multicast on OCF nodes
+                ## multicast on OCF nodes : reaml local
                 self._socket2 = socket.socket(socket.AF_INET6, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
                 # Allows address to be reused
                 self._socket2.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -108,12 +108,12 @@ class CoAP(object):
                 #self._socket2.setsockopt(socket.IPPROTO_IPV6, socket.IPV6_MULTICAST_LOOP, True)
                 self._socket2.setsockopt(41, socket.IPV6_MULTICAST_LOOP, True)
                 # Construct message for joining multicast group
-                mreq = struct.pack("16s15s".encode('utf-8'), socket.inet_pton(socket.AF_INET6, defines.ALL_OCF_NODES_IPV6), (chr(0) * 16).encode('utf-8'))
+                mreq = struct.pack("16s15s".encode('utf-8'), socket.inet_pton(socket.AF_INET6, defines.ALL_OCF_NODES_S3_IPV6), (chr(0) * 16).encode('utf-8'))
                 #self._socket2.setsockopt(socket.IPPROTO_IPV6, socket.IPV6_JOIN_GROUP, mreq)
                 self._socket2.setsockopt(41, socket.IPV6_JOIN_GROUP, mreq)
                 self._socketlist.append(self._socket2)
                 
-                ## multicast on ALL COAP nodes
+                ## multicast on OCF nodes: site local
                 self._socket3 = socket.socket(socket.AF_INET6, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
                 # Allows address to be reused
                 self._socket3.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -127,10 +127,30 @@ class CoAP(object):
                 #self._socket3.setsockopt(socket.IPPROTO_IPV6, socket.IPV6_MULTICAST_LOOP, True)
                 self._socket3.setsockopt(41, socket.IPV6_MULTICAST_LOOP, True)
                 # Construct message for joining multicast group
-                mreq = struct.pack("16s15s".encode('utf-8'), socket.inet_pton(socket.AF_INET6, defines.ALL_COAP_NODES_IPV6), (chr(0) * 16).encode('utf-8'))
+                mreq = struct.pack("16s15s".encode('utf-8'), socket.inet_pton(socket.AF_INET6, defines.ALL_OCF_NODES_S5_IPV6), (chr(0) * 16).encode('utf-8'))
                 #self._socket3.setsockopt(socket.IPPROTO_IPV6, socket.IPV6_JOIN_GROUP, mreq)
                 self._socket3.setsockopt(41, socket.IPV6_JOIN_GROUP, mreq)
                 self._socketlist.append(self._socket3)
+                
+                
+                ## multicast on ALL COAP nodes
+                self._socket4 = socket.socket(socket.AF_INET6, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
+                # Allows address to be reused
+                self._socket4.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+                # Allows port to be reused
+                try:
+                    self._socket4.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
+                except:
+                    pass
+                self._socket4.bind(('', 5683))
+                # Allow messages from this socket to loop back for development
+                #self._socket4.setsockopt(socket.IPPROTO_IPV6, socket.IPV6_MULTICAST_LOOP, True)
+                self._socket4.setsockopt(41, socket.IPV6_MULTICAST_LOOP, True)
+                # Construct message for joining multicast group
+                mreq = struct.pack("16s15s".encode('utf-8'), socket.inet_pton(socket.AF_INET6, defines.ALL_COAP_NODES_IPV6), (chr(0) * 16).encode('utf-8'))
+                #self._socket4.setsockopt(socket.IPPROTO_IPV6, socket.IPV6_JOIN_GROUP, mreq)
+                self._socket4.setsockopt(41, socket.IPV6_JOIN_GROUP, mreq)
+                self._socketlist.append(self._socket4)
 
                 
         else:
