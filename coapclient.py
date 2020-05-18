@@ -4,6 +4,7 @@ import socket
 import sys
 import cbor
 import json
+import time
 
 from coapthon.client.helperclient import HelperClient
 from coapthon.utils import parse_uri
@@ -25,7 +26,25 @@ def usage():  # pragma: no cover
 
 
 def client_callback(response):
-    print("Callback")
+    print(" --- Callback ---")
+    if response is not None:
+        print((response.pretty_print()))
+        if response.content_type == defines.Content_types["application/cbor"]:
+            json_data = cbor.loads(response.payload)
+            json_string = json.dumps(json_data, indent=2, sort_keys=True)
+            print (json_string)
+        if response.content_type == defines.Content_types["application/vnd.ocf+cbor"]:
+            json_data = cbor.loads(response.payload)
+            json_string = json.dumps(json_data, indent=2, sort_keys=True)
+            print (json_string)
+    else:
+        print (" Response : None")
+    #check = True
+    #while check:
+    #    chosen = eval(input("Stop observing? [y/N]: "))
+    #    if chosen != "" and not (chosen == "n" or chosen == "N" or chosen == "y" or chosen == "Y"):
+    #        print("Unrecognized choose.")
+    #        continue
 
 
 def client_callback_observe(response):  # pragma: no cover
@@ -188,19 +207,14 @@ def main():  # pragma: no cover
             sys.exit(2)
         print ( "payload for POST (ascii):", payload )
         print (ct['accept'] )
-        if ct['accept'] == str(60):
-            print ("hello")
+        if ct['accept'] == str(defines.Content_types["application/cbor"]):
             json_data = json.loads(payload)
-            print ( "payload for POST (json):", json_data )
             cbor_data = cbor.dumps(json_data)
-            print ( "payload for POST (cbor):", cbor_data )
             payload = bytes(cbor_data)
-            print ("binary::")
-            print (payload)
-        #if ct['accept'] == defines.Content_types["application/vnd.ocf+cbor"]:
-        #    json_data = json.loads(payload)
-        #    cbor_data = cbor.loads(json_data)
-        #    payload = cbor_data
+        if ct['accept'] == str(defines.Content_types["application/vnd.ocf+cbor"]):
+            json_data = json.loads(payload)
+            cbor_data = cbor.loads(json_data)
+            payload = cbor_data
             
         response = client.post(path, payload, None, None, **ct)
         
@@ -227,17 +241,25 @@ def main():  # pragma: no cover
         print((response.pretty_print()))
         client.stop()
     elif op == "DISCOVER":
-        response = client.discover( path, None, None, **ct)
-        print((response.pretty_print()))
-        if response.content_type == defines.Content_types["application/cbor"]:
-            json_data = cbor.loads(response.payload)
-            json_string = json.dumps(json_data, indent=2, sort_keys=True)
-            print (json_string)
-        if response.content_type == defines.Content_types["application/vnd.ocf+cbor"]:
-            json_data = cbor.loads(response.payload)
-            json_string = json.dumps(json_data, indent=2, sort_keys=True)
-            print (json_string)
-        client.stop()
+        response = client.discover( path, client_callback, None, **ct)
+        #response = client.discover( path, None, None, **ct)
+        if response is not None:
+            print((response.pretty_print()))
+            if response.content_type == defines.Content_types["application/cbor"]:
+                json_data = cbor.loads(response.payload)
+                json_string = json.dumps(json_data, indent=2, sort_keys=True)
+                print (json_string)
+            if response.content_type == defines.Content_types["application/vnd.ocf+cbor"]:
+                json_data = cbor.loads(response.payload)
+                json_string = json.dumps(json_data, indent=2, sort_keys=True)
+                print (json_string)
+        
+        try:
+           while True:
+              time.sleep(1)
+        except KeyboardInterrupt:
+           print("Client Shutdown")
+           client.stop()
     else:
         print("Operation not recognized")
         usage()

@@ -213,7 +213,7 @@ class HelperClient(object):
 
         return self.send_request(request, callback, timeout, no_response=no_response)
 
-    def discover(self, path=None, callback=None, timeout=None, **kwargs):  # pragma: no cover
+    def discover(self, path, callback=None, timeout=None, **kwargs):  # pragma: no cover
         """
         Perform a Discover request on the server.
 
@@ -221,21 +221,15 @@ class HelperClient(object):
         :param timeout: the timeout of the request
         :return: the response
         """
-        #request = self.mk_request(defines.Codes.GET, defines.DISCOVERY_URL)
-        #request = self.mk_request(defines.Codes.GET, "/oic/p")
-        #mk_request_non
-        #request = self.mk_request_non(defines.Codes.GET, "/oic/p")
-        #request = self.mk_request_non(defines.Codes.GET, "/oic/d")
         if path == None:
           request = self.mk_request_non(defines.Codes.GET, "/oic/res")
         else:
           request = self.mk_request_non(defines.Codes.GET, path)
         request.token = generate_random_token(2)
-
+        print ("discover : path=", path)
         for k, v in kwargs.items():
             print ("discover : has:", k,v)
             if hasattr(request, k):
-                #print ("discover : setting:", k,v)
                 try:
                     print ("discover : setting:", k,v)
                     setattr(request, k, v)
