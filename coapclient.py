@@ -62,8 +62,8 @@ def main():  # pragma: no cover
     #ct = {'content_type': defines.Content_types["application/link-format"]}
     ct = {}
     ct['accept'] = 0
-    #ct['ocf_accept_content_format_version'] = int(2048)
-    #ct['ocf_content_format_version'] = int(2048)
+    ct['ocf_accept_content_format_version'] = int(2048)
+    ct['ocf_content_format_version'] = int(2048)
     
     
     try:

@@ -463,7 +463,7 @@ def main(argv):  # pragma: no cover
     data = socket.getaddrinfo(host_name, None, socket.AF_INET6)
     ip = data[0][4][0]
     port = 55555
-    multicast = False
+    multicast = True
     
     try:
         opts, args = getopt.getopt(argv, "hi:p:m", ["ip=", "port=", "multicast"])

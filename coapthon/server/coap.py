@@ -2,6 +2,7 @@ import logging.config
 import os
 import random
 import socket
+import select
 import struct
 import threading
 
@@ -66,6 +67,7 @@ class CoAP(object):
         self.server_address = server_address
         self.multicast = multicast
         self._cb_ignore_listen_exception = cb_ignore_listen_exception
+        self._socketlist = []
 
         addrinfo = socket.getaddrinfo(self.server_address[0], None)[0]
 
@@ -73,12 +75,9 @@ class CoAP(object):
 
             # Use given socket, could be a DTLS socket
             self._socket = sock
+            self._socketlist.append(sock)
 
         elif self.multicast:  # pragma: no cover
-
-            # Create a socket
-            # self._socket.setsockopt(socket.SOL_IP, socket.IP_MULTICAST_TTL, 255)
-            # self._socket.setsockopt(socket.SOL_IP, socket.IP_MULTICAST_LOOP, 1)
 
             # Join group
             if addrinfo[0] == socket.AF_INET:  # IPv4
@@ -87,37 +86,53 @@ class CoAP(object):
                 self._socket.bind(('', self.server_address[1]))
                 mreq = struct.pack("4sl", socket.inet_aton(defines.ALL_COAP_NODES), socket.INADDR_ANY)
                 self._socket.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, mreq)
-            else:
+            else:  # IPv6
                 self._socket = socket.socket(socket.AF_INET6, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
-
                 # Allow multiple copies of this program on one machine
                 # (not strictly needed)
                 self._socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-                #self._socket.bind((defines.ALL_COAP_NODES_IPV6, 5683))
-                #self._socket.bind((defines.ALL_OCF_NODES_IPV6, 5683))
-                #self._socket.bind("", self.server_address[1])
                 self._socket.bind(self.server_address)
+                self._socketlist.append(self._socket)
+                
+                ## multicast on OCF nodes
+                self._socket2 = socket.socket(socket.AF_INET6, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
+                # Allows address to be reused
+                self._socket2.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+                # Allows port to be reused
+                try:
+                    self._socket2.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
+                except:
+                    pass
+                self._socket2.bind(('', 5683))
+                # Allow messages from this socket to loop back for development
+                #self._socket2.setsockopt(socket.IPPROTO_IPV6, socket.IPV6_MULTICAST_LOOP, True)
+                self._socket2.setsockopt(41, socket.IPV6_MULTICAST_LOOP, True)
+                # Construct message for joining multicast group
+                mreq = struct.pack("16s15s".encode('utf-8'), socket.inet_pton(socket.AF_INET6, defines.ALL_OCF_NODES_IPV6), (chr(0) * 16).encode('utf-8'))
+                #self._socket2.setsockopt(socket.IPPROTO_IPV6, socket.IPV6_JOIN_GROUP, mreq)
+                self._socket2.setsockopt(41, socket.IPV6_JOIN_GROUP, mreq)
+                self._socketlist.append(self._socket2)
+                
+                ## multicast on ALL COAP nodes
+                self._socket3 = socket.socket(socket.AF_INET6, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
+                # Allows address to be reused
+                self._socket3.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+                # Allows port to be reused
+                try:
+                    self._socket3.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
+                except:
+                    pass
+                self._socket3.bind(('', 5683))
+                # Allow messages from this socket to loop back for development
+                #self._socket3.setsockopt(socket.IPPROTO_IPV6, socket.IPV6_MULTICAST_LOOP, True)
+                self._socket3.setsockopt(41, socket.IPV6_MULTICAST_LOOP, True)
+                # Construct message for joining multicast group
+                mreq = struct.pack("16s15s".encode('utf-8'), socket.inet_pton(socket.AF_INET6, defines.ALL_COAP_NODES_IPV6), (chr(0) * 16).encode('utf-8'))
+                #self._socket3.setsockopt(socket.IPPROTO_IPV6, socket.IPV6_JOIN_GROUP, mreq)
+                self._socket3.setsockopt(41, socket.IPV6_JOIN_GROUP, mreq)
+                self._socketlist.append(self._socket3)
 
-                addrinfo_multicast = socket.getaddrinfo(defines.ALL_COAP_NODES_IPV6, 5683)[0]
-                group_bin = socket.inet_pton(socket.AF_INET6, addrinfo_multicast[4][0])
-                mreq = group_bin + struct.pack('@I', 0)
-                #self._socket.setsockopt(socket.IPPROTO_IPV6, socket.IPV6_JOIN_GROUP, mreq)
-                # https://bugs.python.org/issue29515
-                self._socket.setsockopt(41, socket.IPV6_JOIN_GROUP, mreq)
                 
-                
-
-                addrinfo_multicast = socket.getaddrinfo(defines.ALL_OCF_NODES_IPV6, 5683)[0]
-                group_bin = socket.inet_pton(socket.AF_INET6, addrinfo_multicast[4][0])
-                mreq = group_bin + struct.pack('@I', 0)
-                #self._socket.setsockopt(socket.IPPROTO_IPV6, socket.IPV6_JOIN_GROUP, mreq)
-                # https://bugs.python.org/issue29515
-                self._socket.setsockopt(41, socket.IPV6_JOIN_GROUP, mreq)
-                
-                
-                self._unicast_socket = socket.socket(socket.AF_INET6, socket.SOCK_DGRAM)
-                self._unicast_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-                self._unicast_socket.bind(self.server_address)
         else:
             if addrinfo[0] == socket.AF_INET:  # IPv4
                 self._socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -125,8 +140,8 @@ class CoAP(object):
             else:
                 self._socket = socket.socket(socket.AF_INET6, socket.SOCK_DGRAM)
                 self._socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-
             self._socket.bind(self.server_address)
+            self._socketlist.append(self._socket)
 
     def purge(self):
         """
@@ -144,12 +159,19 @@ class CoAP(object):
         :param timeout: Socket Timeout in seconds
         """
         self._socket.settimeout(float(timeout))
+        empty = []
         while not self.stopped.isSet():
             try:
-                data, client_address = self._socket.recvfrom(4096)
-                if len(client_address) > 2:
-                    client_address = (client_address[0], client_address[1])
+                data = None
+                client_address = None
+                readable, writable, exceptional = select.select(self._socketlist, empty, empty, timeout)
+                for s in readable:
+                    data, client_address = s.recvfrom(4096)
+                    if len(client_address) > 2:
+                        client_address = (client_address[0], client_address[1])
+                        print ("listen : received ", client_address)
             except socket.timeout:
+                print (".")
                 continue
             except Exception as e:
                 if self._cb_ignore_listen_exception is not None and isinstance(self._cb_ignore_listen_exception, collections.Callable):
@@ -158,47 +180,51 @@ class CoAP(object):
                 raise
             try:
                 serializer = Serializer()
-                message = serializer.deserialize(data, client_address)
-                if isinstance(message, int):
-                    logger.error("receive_datagram - BAD REQUEST")
+                if data is not None:
+                    message = serializer.deserialize(data, client_address)
+                
+                    if isinstance(message, int):
+                        logger.error("receive_datagram - BAD REQUEST")
 
-                    rst = Message()
-                    rst.destination = client_address
-                    rst.type = defines.Types["RST"]
-                    rst.code = message
-                    rst.mid = self._messageLayer.fetch_mid()
-                    self.send_datagram(rst)
-                    continue
-
-                logger.debug("receive_datagram - " + str(message))
-                if isinstance(message, Request):
-                    transaction = self._messageLayer.receive_request(message)
-                    if transaction.request.duplicated and transaction.completed:
-                        logger.debug("message duplicated, transaction completed")
-                        if transaction.response is not None:
-                            self.send_datagram(transaction.response)
+                        rst = Message()
+                        rst.destination = client_address
+                        rst.type = defines.Types["RST"]
+                        rst.code = message
+                        rst.mid = self._messageLayer.fetch_mid()
+                        self.send_datagram(rst)
                         continue
-                    elif transaction.request.duplicated and not transaction.completed:
-                        logger.debug("message duplicated, transaction NOT completed")
-                        self._send_ack(transaction)
-                        continue
-                    args = (transaction, )
-                    t = threading.Thread(target=self.receive_request, args=args)
-                    t.start()
-                # self.receive_datagram(data, client_address)
-                elif isinstance(message, Response):
-                    logger.error("Received response from %s", message.source)
 
-                else:  # is Message
-                    transaction = self._messageLayer.receive_empty(message)
-                    if transaction is not None:
-                        with transaction:
-                            self._blockLayer.receive_empty(message, transaction)
-                            self._observeLayer.receive_empty(message, transaction)
+                    logger.debug("receive_datagram - " + str(message))
+                    if isinstance(message, Request):
+                        transaction = self._messageLayer.receive_request(message)
+                        if transaction.request.duplicated and transaction.completed:
+                            logger.debug("message duplicated, transaction completed")
+                            if transaction.response is not None:
+                                self.send_datagram(transaction.response)
+                            continue
+                        elif transaction.request.duplicated and not transaction.completed:
+                            logger.debug("message duplicated, transaction NOT completed")
+                            self._send_ack(transaction)
+                            continue
+                        args = (transaction, )
+                        t = threading.Thread(target=self.receive_request, args=args)
+                        t.start()
+                    # self.receive_datagram(data, client_address)
+                    elif isinstance(message, Response):
+                        logger.error("Received response from %s", message.source)
+
+                    else:  # is Message
+                        transaction = self._messageLayer.receive_empty(message)
+                        if transaction is not None:
+                            with transaction:
+                                self._blockLayer.receive_empty(message, transaction)
+                                self._observeLayer.receive_empty(message, transaction)
 
             except RuntimeError:
                 logger.exception("Exception with Executor")
-        self._socket.close()
+        # close sockets
+        for sock in self._socketlist:
+            sock.close()
 
     def close(self):
         """
