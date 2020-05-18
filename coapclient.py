@@ -227,7 +227,7 @@ def main():  # pragma: no cover
         print((response.pretty_print()))
         client.stop()
     elif op == "DISCOVER":
-        response = client.discover(None, None, **ct)
+        response = client.discover( path, None, None, **ct)
         print((response.pretty_print()))
         if response.content_type == defines.Content_types["application/cbor"]:
             json_data = cbor.loads(response.payload)
