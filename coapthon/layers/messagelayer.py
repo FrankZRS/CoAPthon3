@@ -118,10 +118,7 @@ class MessageLayer(object):
         key_token_multicast_ipv6 = str_append_hash(defines.ALL_COAP_NODES_IPV6, 5683, response.token)
         key_token_multicast_ocf_5 = str_append_hash(defines.ALL_OCF_NODES_S5_IPV6, 5683, response.token)
         key_token_multicast_ocf_3 = str_append_hash(defines.ALL_OCF_NODES_S3_IPV6, 5683, response.token)
-        #print (" receive_response ipv4:", key_token_multicast)
-        #print (" receive_response ipv6:", key_token_multicast_ipv6)
-        #print (" receive_response ocf_5:", key_token_multicast_ocf_5) 
-        #print (" receive_response ocf_3:", key_token_multicast_ocf_3) 
+
         if key_mid in list(self._transactions.keys()):
             transaction = self._transactions[key_mid]
             if response.token != transaction.request.token:
@@ -274,6 +271,8 @@ class MessageLayer(object):
                 transaction.completed = True
             elif transaction.request.type == defines.Types["NON"]:
                 transaction.response.type = defines.Types["NON"]
+                #if transaction.request.token is not None:
+                #    transaction.response.token = transaction.request.token
             else:
                 transaction.response.type = defines.Types["CON"]
                 transaction.response.token = transaction.request.token
@@ -288,6 +287,8 @@ class MessageLayer(object):
             self._transactions[key_mid] = transaction
 
         transaction.request.acknowledged = True
+        
+
         return transaction
 
     def send_empty(self, transaction, related, message):

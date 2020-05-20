@@ -490,6 +490,14 @@ class ResourceLayer(object):
         except KeyError:
             transaction.response.code = defines.Codes.NOT_ACCEPTABLE.number
             return transaction.response
+            
+        try:
+            if resource.actual_content_type is not None \
+                    and resource.actual_content_type != defines.Content_types["text/plain"]:
+                transaction.response.content_type = resource.actual_content_type
+        except KeyError:
+            transaction.response.code = defines.Codes.NOT_ACCEPTABLE.number
+            return transaction.response
 
         assert(isinstance(resource, Resource))
         if resource.etag is not None:

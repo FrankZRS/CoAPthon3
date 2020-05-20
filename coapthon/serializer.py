@@ -21,8 +21,6 @@ def is_binary(content_type):
     return True
   if content_type == defines.Content_types["application/vnd.ocf+cbor"]:
     return True
-  if content_type == defines.Content_types["application/vnd.ocf+cbor"]:
-    return True
   return False
 
 class Serializer(object):
@@ -63,19 +61,25 @@ class Serializer(object):
             message.version = version
             message.type = message_type
             message.mid = mid
+            message.token_length = token_length
+            print (" first   ",first)
+            print (" version ", version)
+            print (" type    ", message_type)
+            print (" mid     ", mid)
+            print (" pos     ", pos)
+            print (" token_length ", token_length)
             if token_length > 0:
                 fmt = "%ss" % token_length
                 s = struct.Struct(fmt)
                 token_value = s.unpack_from(datagram[pos:])[0]
-                #message.token = token_value.decode("utf-8")
-                try :
-                    message.token = token_value.decode("utf-8")
-                except:
-                    message.token = token_value
+                message.token = token_value
+                print (" token   ", message.token.hex())
             else:
                 message.token = None
-
+            
+            
             pos += token_length
+            
             current_option = 0
             values = datagram[pos:]
             length_packet = len(values)
@@ -131,16 +135,11 @@ class Serializer(object):
                         # log.err("Payload Marker with no payload")
                         print ("Payload Marker with no payload")
                         raise AttributeError("Packet length %s, pos %s" % (length_packet, pos))
-                    message.payload = ""
                     payload = values[pos:]
                     try:
-                        if is_binary(message.payload_type):
-                            message.payload = payload
-                        else:
-                            message.payload = payload.decode("utf-8")
+                        message.payload = payload
                     except AttributeError:
                         message.payload = payload
-                        #message.payload = payload.decode("utf-8")
                     pos += len(payload)
 
             return message
@@ -165,8 +164,7 @@ class Serializer(object):
         """
         fmt = "!BBH"
 
-        #if message.token is None or message.token == "":
-        if message.token is None:
+        if message.token is None or message.token == "":
             tkl = 0
         else:
             tkl = len(message.token)
@@ -178,10 +176,17 @@ class Serializer(object):
         values = [tmp, message.code, message.mid]
 
         if message.token is not None and tkl > 0:
-
-            for b in str(message.token):
-                fmt += "c"
-                values.append(bytes(b, "utf-8"))
+            #print (" serialize tkl",tkl)
+            if isinstance(message.token, bytes):
+                #print (" serialize token ",message.token.hex())
+                for b in message.token:
+                    fmt += "B"
+                    values.append(b)
+            else:
+                # token is a string
+                for b in str(message.token):
+                    fmt += "c"
+                    values.append(bytes(b, "utf-8"))
 
         options = Serializer.as_sorted_list(message.options)  # already sorted
         lastoptionnumber = 0
@@ -248,14 +253,9 @@ class Serializer(object):
             if isinstance(payload, bytes):
                 fmt += str(len(payload)) + "s"
                 values.append(payload)
-                #fmt += str(len(payload)) + "B"
-                #values.extend(payload)
             else:
                 fmt += str(len(bytes(payload, "utf-8"))) + "s"
                 values.append(bytes(payload, "utf-8"))
-            # for b in str(payload):
-            #     fmt += "c"
-            #     values.append(bytes(b, "utf-8"))
 
         datagram = None
         if values[1] is None:
@@ -334,11 +334,22 @@ class Serializer(object):
             pos += 1
         elif h_nibble == 14:
             s = struct.Struct("!H")
-            if isinstance(values[pos:], bytes):
-                value = s.unpack_from(values[pos:])[0] + 269
+            if isinstance(values[pos:], bytes): 
+              value = s.unpack_from(values[pos:])[0] + 269
+              print ("value =====", byte, pos, value)
             else:
-                value = s.unpack_from(values[pos:].to_bytes(2, "big"))[0] + 269
+               value = s.unpack_from(values[pos:].to_bytes(2, "big"))[0] + 269
             pos += 2
+            #try:
+            #   value = s.unpack_from(values[pos:].to_bytes(2, "big"))[0] + 269
+            #   pos += 2
+            #except: 
+            #    print ("read_option_value_len_from_byte ")
+            #    if isinstance(values[pos:], bytes):
+            #        value = s.unpack_from(values[pos:])[0] + 269
+            #    else:
+            #        value = s.unpack_from(values[pos:].to_bytes(2, "big"))[0] + 269
+            #    pos += 2
         else:
             raise AttributeError("Unsupported option number nibble " + str(h_nibble))
 
