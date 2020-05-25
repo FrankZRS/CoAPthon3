@@ -5,6 +5,7 @@ import sys
 import cbor
 import json
 import time
+import traceback
 
 from coapthon.client.helperclient import HelperClient
 from coapthon.utils import parse_uri
@@ -28,15 +29,29 @@ def usage():  # pragma: no cover
 def client_callback(response):
     print(" --- Callback ---")
     if response is not None:
-        print((response.pretty_print()))
+        print ("response code:",response.code)
+        #print(response.pretty_print())
         if response.content_type == defines.Content_types["application/cbor"]:
             json_data = cbor.loads(response.payload)
             json_string = json.dumps(json_data, indent=2, sort_keys=True)
             print (json_string)
-        if response.content_type == defines.Content_types["application/vnd.ocf+cbor"]:
-            json_data = cbor.loads(response.payload)
+        elif response.content_type == defines.Content_types["application/vnd.ocf+cbor"]:
+            print ("application/vnd.ocf+cbor")
+            try:
+                print (type(response.payload), len(response.payload))
+                print ("=========")
+                print (response.payload)
+                print ("=========")
+                json_data = cbor.loads(response.payload)
+                print (json_data)
+                print ("---------")
+            except:
+                traceback.print_exc()
             json_string = json.dumps(json_data, indent=2, sort_keys=True)
             print (json_string)
+        else:
+            print ("type, len", type(response.payload), len(response.payload))
+            print (response.payload)
     else:
         print (" Response : None")
     #check = True
@@ -244,7 +259,7 @@ def main():  # pragma: no cover
         response = client.discover( path, client_callback, None, **ct)
         #response = client.discover( path, None, None, **ct)
         if response is not None:
-            print((response.pretty_print()))
+            print(response.pretty_print())
             if response.content_type == defines.Content_types["application/cbor"]:
                 json_data = cbor.loads(response.payload)
                 json_string = json.dumps(json_data, indent=2, sort_keys=True)
