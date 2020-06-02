@@ -525,7 +525,12 @@ class ResourceLayer(object):
             if resource.visible:
                 ret = self.valid(transaction.request.uri_query, resource.attributes)
                 if ret:
-                    payload += self.corelinkformat(resource)
+                    #payload += self.corelinkformat(resource)
+                    #server_address = self._parent.ocf_ip_address
+                    if self._parent.ocf_ip_address is not None:
+                        payload += self.corelinkformat(resource, self._parent.ocf_ip_address)
+                    else:
+                        payload += self.corelinkformat(resource)
 
         transaction.response.payload = payload
         transaction.response.content_type = defines.Content_types["application/link-format"]
@@ -558,6 +563,30 @@ class ResourceLayer(object):
         :return: the string
         """
         msg = "<" + resource.path + ">;"
+        assert(isinstance(resource, Resource))
+        keys = sorted(list(resource.attributes.keys()))
+        for k in keys:
+            method = getattr(resource, defines.corelinkformat[k], None)
+            if method is not None and method != "":
+                v = method
+                msg = msg[:-1] + ";" + str(v) + ","
+            else:
+                v = resource.attributes[k]
+                if v is not None:
+                    msg = msg[:-1] + ";" + k + "=" + v + ","
+        return msg
+
+
+    @staticmethod
+    def corelinkformat(resource, server_address):
+        """
+        Return a formatted string representation of the corelinkformat in the tree.
+
+        :return: the string
+        """
+        #print ("corelinkformat" , server_address)
+        qualified = 'coap://'+server_address+'/'+ resource.path
+        msg = "<" +qualified + ">;"
         assert(isinstance(resource, Resource))
         keys = sorted(list(resource.attributes.keys()))
         for k in keys:

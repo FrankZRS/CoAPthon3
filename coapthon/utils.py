@@ -82,6 +82,7 @@ def parse_blockwise(value):
         m = value & 0x000008
         m >>= 3
         size = value & 0x000007
+    print ("util, parseblockwise num, m, size:", num, int(m), pow(2, (size + 4)) )
     return num, int(m), pow(2, (size + 4))
 
 

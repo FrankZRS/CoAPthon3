@@ -105,8 +105,10 @@ class CoAP(object):
                     pass
                 self._socket2.bind(('', 5683))
                 # Allow messages from this socket to loop back for development
-                #self._socket2.setsockopt(socket.IPPROTO_IPV6, socket.IPV6_MULTICAST_LOOP, True)
-                self._socket2.setsockopt(41, socket.IPV6_MULTICAST_LOOP, True)
+                try:
+                  self._socket2.setsockopt(socket.IPPROTO_IPV6, socket.IPV6_MULTICAST_LOOP, True)
+                except:
+                  self._socket2.setsockopt(41, socket.IPV6_MULTICAST_LOOP, True)
                 # Construct message for joining multicast group
                 mreq = struct.pack("16s15s".encode('utf-8'), socket.inet_pton(socket.AF_INET6, defines.ALL_OCF_NODES_S3_IPV6), (chr(0) * 16).encode('utf-8'))
                 #self._socket2.setsockopt(socket.IPPROTO_IPV6, socket.IPV6_JOIN_GROUP, mreq)
@@ -124,12 +126,16 @@ class CoAP(object):
                     pass
                 self._socket3.bind(('', 5683))
                 # Allow messages from this socket to loop back for development
-                #self._socket3.setsockopt(socket.IPPROTO_IPV6, socket.IPV6_MULTICAST_LOOP, True)
-                self._socket3.setsockopt(41, socket.IPV6_MULTICAST_LOOP, True)
+                try:
+                  self._socket3.setsockopt(socket.IPPROTO_IPV6, socket.IPV6_MULTICAST_LOOP, True)
+                except:
+                  self._socket3.setsockopt(41, socket.IPV6_MULTICAST_LOOP, True)
                 # Construct message for joining multicast group
                 mreq = struct.pack("16s15s".encode('utf-8'), socket.inet_pton(socket.AF_INET6, defines.ALL_OCF_NODES_S5_IPV6), (chr(0) * 16).encode('utf-8'))
-                #self._socket3.setsockopt(socket.IPPROTO_IPV6, socket.IPV6_JOIN_GROUP, mreq)
-                self._socket3.setsockopt(41, socket.IPV6_JOIN_GROUP, mreq)
+                try:
+                  self._socket3.setsockopt(socket.IPPROTO_IPV6, socket.IPV6_JOIN_GROUP, mreq)
+                except:
+                  self._socket3.setsockopt(41, socket.IPV6_JOIN_GROUP, mreq)
                 self._socketlist.append(self._socket3)
                 
                 

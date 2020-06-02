@@ -84,6 +84,7 @@ class BlockLayer(object):
                                                             content_type)
 
             if m == 0:
+                print ("initial block", self._block1_receive[key_token].payload)
                 transaction.request.payload = self._block1_receive[key_token].payload
                 # end of blockwise
                 del transaction.request.block1
@@ -140,6 +141,8 @@ class BlockLayer(object):
             request.payload = item.payload[item.byte: item.byte+item.size]
             item.num += 1
             item.byte += item.size
+            print (" blocklayer receive_response num", item.num)
+            print (" blocklayer receive_response byte", item.size)
             if len(item.payload) <= item.byte:
                 item.m = 0
             else:
@@ -164,10 +167,20 @@ class BlockLayer(object):
                     item.num = num + 1
                     item.size = size
                     item.m = m
+                    
+                    print (" increase payload:", key_token)
+                    print (" blocklayer receive_response num", item.num)
+                    print (" blocklayer receive_response size", item.size)
+                    print (" blocklayer receive_response byte", item.byte)
+                    print (" blocklayer receive_response m", item.m)
                     item.payload += transaction.response.payload
                 else:
+                    
                     item = BlockItem(size, num + 1, m, size, transaction.response.payload,
                                      transaction.response.content_type)
+                    print (" new block item :", key_token)
+                    print (" blocklayer receive_response num", item.num)
+                    print (" blocklayer receive_response size", item.size)
                     self._block2_sent[key_token] = item
                 request = transaction.request
                 del request.mid

@@ -22,7 +22,7 @@
 # tool_version          : 20200103
 # input_file            : ../device_output/out_codegeneration_merged.swagger.json
 # version of input_file : 20190222
-# title of input_file   : server_lite_9336
+# title of input_file   : server_lite_5448
 
 #!/usr/local/bin/python
 # -*- coding: utf-8 -*-
@@ -59,7 +59,7 @@ class c_binaryswitch2Resource(Resource):
         self.resource_type = "oic.r.switch.binary"
         self.content_type = "text/plain"
         interfaces_array = ['oic.if.a', 'oic.if.baseline']
-        self.interface_type =  "'" + str(interfaces_array[0]) + "," + str(interfaces_array[1]) + "'"
+        self.interface_type =  str(interfaces_array[0]) + "," + str(interfaces_array[1])
         self.m_value = True   # boolean 
     def create_return_json(self):
         return_json = "{"
@@ -136,7 +136,7 @@ class c_loadxxResource(Resource):
         self.resource_type = ""
         self.content_type = "text/plain"
         interfaces_array = ['oic.if.s', 'oic.if.baseline']
-        self.interface_type =  "'" + str(interfaces_array[0]) + "," + str(interfaces_array[1]) + "'"
+        self.interface_type =  str(interfaces_array[0]) + "," + str(interfaces_array[1])
         self.m_Application_Type = "mystring"  # string
         self.m_Current_Calibration = 0.0  # number
         self.m_Max_Measured_Value = 0.0  # number
@@ -239,7 +239,6 @@ class OICRESResource(Resource):
             print ("  content type application/vnd.ocf+cbor")
             response.payload = bytes(cbor.dumps(json_data))
             response.ocf_content_format_version = int(2048)
-            #response.token = request.token
         
         #print (response)
         return self, response
@@ -278,7 +277,7 @@ class OICDResource(Resource):
 
     def render_GET_advanced(self, request, response):
         print ("OICDRES: get :", request.accept )
-        return_json = '{ "n": "server_lite_9336",'
+        return_json = '{ "n": "server_lite_5448",'
         return_json = return_json + '"rt": ["oic.wk.d"],'
         return_json = return_json + '"if": ["oic.if.r", "oic.if.baseline"],'
         return_json = return_json + '"icv": "ocf.2.0.2", '
@@ -469,6 +468,7 @@ class CoAPServer(CoAP):
  
         #print("  start on " + host + ":" + str(port))
         ocf_ip_address = "["+ str(host) + "]:" + str(port)
+        self.ocf_ip_address = ocf_ip_address
         print("  start on (ip): coap://"+ocf_ip_address)
         #print(" python3 coapclient.py -o GET -p "coap://[fe80::b536:6766:9ed9:15a4%13]:55555/oic/d?if=oic.if.baseline -c 10000
         print ("dump:")
@@ -505,7 +505,7 @@ def main(argv):  # pragma: no cover
 
     print("------------------------------------")
     print("Used input file : \"../device_output/out_codegeneration_merged.swagger.json\"")
-    print("OCF Server name : \"server_lite_9336\"")
+    print("OCF Server name : \"server_lite_5448\"")
     print("OCF Device Type : \"oic.d.light\"")
     print("------------------------------------\n")
 

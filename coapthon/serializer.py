@@ -62,12 +62,12 @@ class Serializer(object):
             message.type = message_type
             message.mid = mid
             message.token_length = token_length
-            print (" first   ",first)
-            print (" version ", version)
-            print (" type    ", message_type)
-            print (" mid     ", mid)
-            print (" pos     ", pos)
-            print (" token_length ", token_length)
+            #print (" first   ",first)
+            #print (" version ", version)
+            #print (" type    ", message_type)
+            #print (" mid     ", mid)
+            #print (" pos     ", pos)
+            #print (" token_length ", token_length)
             if token_length > 0:
                 fmt = "%ss" % token_length
                 s = struct.Struct(fmt)
