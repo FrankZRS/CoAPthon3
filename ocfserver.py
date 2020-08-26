@@ -22,7 +22,7 @@
 # tool_version          : 20200103
 # input_file            : ../device_output/out_codegeneration_merged.swagger.json
 # version of input_file : 20190222
-# title of input_file   : server_lite_5448
+# title of input_file   : server_lite_10744
 
 #!/usr/local/bin/python
 # -*- coding: utf-8 -*-
@@ -206,20 +206,61 @@ class OICRESResource(Resource):
 
     def render_GET_advanced(self, request, response):
         print ("OICRES: get :", request.accept )
-        return_json = '[ { "anchor": "ocf://'+ocf_piid+ '", "href": "/oic/res", "rel": "self",'
+        
+        all_queries = request.uri_query
+        print ("OICRES: queries:",all_queries)
+        return_json = ""
+        
+        if all_queries == "if=oic.if.baseline":
+            return_json = return_json + '[{ "rt": ["oic.wk.res"], '
+            return_json = return_json + '"if": ["oic.if.ll", "oic.if.baseline"],'
+            return_json = return_json + '"links":'
+        ## oic.if.ll 
+        return_json = return_json + '[ { "anchor": "ocf://'+ocf_piid+ '", "href": "/oic/res", "rel": "self",'
         return_json = return_json + '"rt": ["oic.wk.res"], "if": ["oic.if.ll", "oic.if.baseline"], "p": {"bm": 3},'
-        return_json = return_json + ' "eps": [ {"ep": "coap://'+ocf_ip_address+'"} ] }'
+        return_json = return_json + ' "eps": [ {"ep": "coap://'+ocf_ip_address+'"},{"ep": "coaps://'+ocf_ip_address+'"} ] }'
         
         return_json = return_json + ',{ "anchor": "ocf://'+ocf_piid+ '", "href": "/oic/d",'
         return_json = return_json + ' "rt": ["oic.wk.d"], "if": ["oic.if.r", "oic.if.baseline"], "p": {"bm": 3},'
-        return_json = return_json + ' "eps": [ {"ep": "coap://'+ocf_ip_address+'"} ] }'
+        return_json = return_json + ' "eps": [ {"ep": "coap://'+ocf_ip_address+'"},{"ep": "coaps://'+ocf_ip_address+'"} ] }'
+
+        return_json = return_json + ',{ "anchor": "ocf://'+ocf_piid+ '", "href": "/oic/p",'
+        return_json = return_json + ' "rt": ["oic.wk.p"], "if": ["oic.if.r", "oic.if.baseline"], "p": {"bm": 3},'
+        return_json = return_json + ' "eps": [ {"ep": "coap://'+ocf_ip_address+'"},{"ep": "coaps://'+ocf_ip_address+'"} ] }'
+        
+        ## introspection
+        return_json = return_json + ',{ "anchor": "ocf://'+ocf_piid+ '", "href": "/introspection",'
+        return_json = return_json + ' "rt": ["oic.wk.introspection"], "if": ["oic.if.r", "oic.if.baseline"], "p": {"bm": 1},'
+        return_json = return_json + ' "eps": [ {"ep": "coap://'+ocf_ip_address+'"},{"ep": "coaps://'+ocf_ip_address+'"} ] }'
+        
+        # security
+        return_json = return_json + ',{ "anchor": "ocf://'+ocf_piid+ '", "href": "/oic/sec/doxm",'
+        return_json = return_json + ' "rt": ["oic.r.doxm"], "if": ["oic.if.baseline"], "p": {"bm": 3},'
+        return_json = return_json + ' "eps": [ {"ep": "coap://'+ocf_ip_address+'"}, {"ep": "coaps://'+ocf_ip_address+'"} ] }'
+
+        # /oic/sec/pstat
+        return_json = return_json + ',{ "anchor": "ocf://'+ocf_piid+ '", "href": "/oic/sec/pstat",'
+        return_json = return_json + ' "rt": ["oic.r.pstat"], "if": ["oic.if.baseline"], "p": {"bm": 3},'
+        return_json = return_json + ' "eps": [ {"ep": "coap://'+ocf_ip_address+'"},{"ep": "coaps://'+ocf_ip_address+'"} ] }'
+        # /oic/sec/cred
+        return_json = return_json + ',{ "anchor": "ocf://'+ocf_piid+ '", "href": "/oic/sec/cred",'
+        return_json = return_json + ' "rt": ["oic.r.cred"], "if": ["oic.if.baseline"], "p": {"bm": 3},'
+        return_json = return_json + ' "eps": [ {"ep": "coap://'+ocf_ip_address+'"},{"ep": "coaps://'+ocf_ip_address+'"} ] }'
+        # /oic/sec/csr
+        return_json = return_json + ',{ "anchor": "ocf://'+ocf_piid+ '", "href": "/oic/sec/csr",'
+        return_json = return_json + ' "rt": ["oic.r.csr"], "if": ["oic.if.baseline"], "p": {"bm": 3},'
+        return_json = return_json + ' "eps": [ {"ep": "coap://'+ocf_ip_address+'"},{"ep": "coaps://'+ocf_ip_address+'"} ] }'
         return_json = return_json + ',{ "anchor": "ocf://'+ocf_piid+ '", "href": "/binaryswitch2",'
         return_json = return_json + ' "rt": ["oic.r.switch.binary"],"if":' + '["oic.if.a", "oic.if.baseline"],'
-        return_json = return_json + ' "p": {"bm": 3}, "eps": [ {"ep": "coap://'+ocf_ip_address+'"}]}'
+        return_json = return_json + ' "p": {"bm": 3}, "eps": [ {"ep": "coap://'+ocf_ip_address+'"}, {"ep": "coaps://'+ocf_ip_address+'"}]}'
         return_json = return_json + ',{ "anchor": "ocf://'+ocf_piid+ '", "href": "/loadxx",'
         return_json = return_json + ' "rt": [""],"if":' + '["oic.if.s", "oic.if.baseline"],'
-        return_json = return_json + ' "p": {"bm": 3}, "eps": [ {"ep": "coap://'+ocf_ip_address+'"}]}' 
+        return_json = return_json + ' "p": {"bm": 3}, "eps": [ {"ep": "coap://'+ocf_ip_address+'"}, {"ep": "coaps://'+ocf_ip_address+'"}]}' 
         return_json = return_json + " ]"
+        
+        if all_queries == "if=oic.if.baseline":
+            return_json = return_json + '}]'
+        
         json_data = json.loads(return_json)
         self.payload = str(return_json)
         print ("   return :")
@@ -258,9 +299,29 @@ class OICResource(Resource):
         self.interface_type = "oic.if.r" #, "oic.if.baseline"
 
     def render_GET_advanced(self, request, response):
-        print ("OICRES: get :", request.accept )
+        print ("OICResource: get :", request.accept )
         response.code = defines.Codes.NOT_FOUND.number
         return self, response
+
+#
+# the /oic/sec path implementation
+# needs to be there, otherwise the childeren are not hosted
+# code returns not implemented.       
+class OICSECResource(Resource):
+    def __init__(self, name="OICSECResource", coap_server=None):
+        super(OICSECResource, self).__init__(name, coap_server, visible=True,
+                                             observable=True, allow_children=True)
+        self.value = 0
+        self.payload = str(self.value)
+        self.resource_type = "oic.wk.d"
+        self.content_type = "application/cbor"  #application/cbor
+        self.interface_type = "oic.if.r" #, "oic.if.baseline"
+
+    def render_GET_advanced(self, request, response):
+        print ("OICSECResource: get :", request.accept )
+        response.code = defines.Codes.NOT_FOUND.number
+        return self, response
+
         
 #
 # the oic.wk.d implementation
@@ -277,9 +338,15 @@ class OICDResource(Resource):
 
     def render_GET_advanced(self, request, response):
         print ("OICDRES: get :", request.accept )
-        return_json = '{ "n": "server_lite_5448",'
-        return_json = return_json + '"rt": ["oic.wk.d"],'
-        return_json = return_json + '"if": ["oic.if.r", "oic.if.baseline"],'
+        
+        return_json = ""
+        all_queries = request.uri_query
+        print ("OICD: queries:", all_queries)
+        
+        return_json = return_json +  '{ "n": "server_lite_10744",'
+        if all_queries == "if=oic.if.baseline":
+            return_json = return_json + '"rt": ["oic.wk.d"],'
+            return_json = return_json + '"if": ["oic.if.r", "oic.if.baseline"],'
         return_json = return_json + '"icv": "ocf.2.0.2", '
         return_json = return_json + '"dmv": "ocf.res.1.0.0, ocf.sh.1.0.0",'
         return_json = return_json + '"piid": "'+ocf_piid+'"' 
@@ -324,9 +391,15 @@ class OICPResource(Resource):
         self.interface_type = "oic.if.r" #, "oic.if.baseline"
 
     def render_GET_advanced(self, request, response):
-        print ("OICDRES: get :", request.accept )
-        return_json = '{ "rt": ["oic.wk.p"],'
-        return_json = return_json + '"if": ["oic.if.r", "oic.if.baseline"],'
+        print ("OICP: get :", request.accept )
+
+        all_queries = request.uri_query 
+        print ("OICP: queries:", all_queries)
+        
+        return_json = '{ '
+        if all_queries == "if=oic.if.baseline":
+            return_json = return_json + '"rt": ["oic.wk.p"],'
+            return_json = return_json + '"if": ["oic.if.r", "oic.if.baseline"],'
         return_json = return_json + '"mnmn": "OCF",'
         return_json = return_json + '"pi": "'+ocf_pi+'"' 
         return_json = return_json + " }"
@@ -428,7 +501,57 @@ class introspectionFileResource(Resource):
             self.payload = (defines.Content_types["application/vnd.ocf+cbor"], bytes(cbordata))
         return self
      
+                
+#
+# the oic.r.doxm implementation
+#        
+class OICDOXMResource(Resource):
+    def __init__(self, name="OICDOXMResource", coap_server=None):
+        super(OICDOXMResource, self).__init__(name, coap_server, visible=True,
+                                             observable=True, allow_children=True)
+        self.value = 0
+        self.payload = str(self.value)
+        self.resource_type = "oic.r.doxm"
+        self.content_type = "application/cbor"  #application/cbor
+        self.interface_type = "oic.if.rw" #, "oic.if.baseline"
+
+    def render_GET_advanced(self, request, response):
+        print ("OICDOXMResource: get :", request.accept )
+        return_json = '{ "rt": ["oic.r.doxm"],'
+        return_json = return_json + '"if": [ "oic.if.baseline"],'
+        return_json = return_json + '"oxms": [0,1,2],'
+        return_json = return_json + '"oxmsel": 0,'
+        return_json = return_json + '"sct": 9,'
+        return_json = return_json + '"owned": false,' 
+        return_json = return_json + '"deviceuuid": "'+ocf_pi+'",' 
+        return_json = return_json + '"devowneruuid": "'+ocf_pi+'",' 
+        return_json = return_json + '"rowneruuid": "'+ocf_pi+'"' 
+        return_json = return_json + " }"
         
+        json_data = json.loads(return_json)
+        self.payload = str(return_json)
+        response.content_type = request.accept 
+        response.code = defines.Codes.CONTENT.number
+        if request.accept == defines.Content_types["text/plain"]:
+            print ("  content type text/plain")
+            response.payload = return_json
+        elif request.accept == defines.Content_types["application/json"]:
+            print ("  content type application/json")
+            response.payload = return_json
+        elif request.accept == defines.Content_types["application/cbor"]:
+            print ("  content type application/cbor")
+            cbordata = cbor.dumps(json_data)
+            print ("cbor :",cbordata)
+            response.payload = bytes(cbordata)
+        elif request.accept == defines.Content_types["application/vnd.ocf+cbor"]:
+            print ("  content type application/vnd.ocf+cbor")
+            cbordata = cbor.dumps(json_data)
+            print ("cbor :",cbordata)
+            response.payload = bytes(cbordata)
+            response.ocf_content_format_version = int(2048)
+        return self, response
+     
+     
 class wellknownResource(Resource):
     def __init__(self, name="wellknownResource", coap_server=None):
         super(wellknownResource, self).__init__(name, coap_server, visible=True,
@@ -449,6 +572,7 @@ class CoAPServer(CoAP):
         global ocf_ip_address
         CoAP.__init__(self, (host, port), multicast)
         print(" CoAP Server init:")
+        
         print("  adding resource: '/oic/'")
         self.add_resource('/oic/', OICResource())
         print("  adding resource: '/oic/res/'")
@@ -457,8 +581,18 @@ class CoAPServer(CoAP):
         self.add_resource('/oic/d/', OICDResource())
         print("  adding resource: '/oic/p'")
         self.add_resource('/oic/p/', OICPResource())
+        
+        print("  adding resource: '/ifile' (introspection file)")
         self.add_resource('/ifile', introspectionFileResource())
+        print("  adding resource: '/introspection' (introspection resource)")
         self.add_resource('/introspection', introspectionResource())
+        
+        print("  adding resource: '/oic/sec'")
+        self.add_resource('/oic/sec', OICSECResource())
+        
+        print("  adding resource: '/oic/sec/doxm'")
+        self.add_resource('/oic/sec/doxm', OICDOXMResource())
+        
 
         self.add_resource('/binaryswitch2/', c_binaryswitch2Resource())
         print("  adding resource: '/binaryswitch2/'")
@@ -505,8 +639,10 @@ def main(argv):  # pragma: no cover
 
     print("------------------------------------")
     print("Used input file : \"../device_output/out_codegeneration_merged.swagger.json\"")
-    print("OCF Server name : \"server_lite_5448\"")
+    print("OCF Server name : \"server_lite_10744\"")
     print("OCF Device Type : \"oic.d.light\"")
+    print("OCF piid        : ", ocf_piid)
+    print("OCF pi          : ", ocf_pi)
     print("------------------------------------\n")
 
     server = CoAPServer(ip, port, multicast)
