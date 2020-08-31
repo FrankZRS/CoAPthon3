@@ -22,7 +22,7 @@
 # tool_version          : 20200103
 # input_file            : ../device_output/out_codegeneration_merged.swagger.json
 # version of input_file : 20190222
-# title of input_file   : server_lite_10744
+# title of input_file   : server_lite_12348
 
 #!/usr/local/bin/python
 # -*- coding: utf-8 -*-
@@ -38,8 +38,10 @@ import socket
 
 ocf_piid="e61c3e6b-9c54-4b81-8ce5-f9039c1d04d9"
 ocf_pi="e61c3e6b-9c54-4b81-8ce5-f9039c1d04d8"
+ocf_di="e61c3e6b-9c54-4b81-8ce5-f9039c1d04d8"
 global ocf_ip_address
-ocf_ip_address="xxx"
+ocf_ip_address="oic.d.light"
+ocf_device_type="oic.d.sensor"
 introspectionfile_json="../out_introspection_merged.swagger.json"
 introspectionfile_cbor="../out_introspection_merged.swagger.json.cbor"
 
@@ -328,28 +330,31 @@ class OICSECResource(Resource):
 #        
 class OICDResource(Resource):
     def __init__(self, name="OICDResource", coap_server=None):
+        global ocf_device_type
         super(OICDResource, self).__init__(name, coap_server, visible=True,
                                              observable=True, allow_children=True)
         self.value = 0
         self.payload = str(self.value)
-        self.resource_type = "oic.wk.d"
+        self.resource_type = "oic.wk.d oic.d.light"
         self.content_type = "application/cbor"  #application/cbor
         self.interface_type = "oic.if.r" #, "oic.if.baseline"
 
     def render_GET_advanced(self, request, response):
+        global ocf_device_type
         print ("OICDRES: get :", request.accept )
         
         return_json = ""
         all_queries = request.uri_query
         print ("OICD: queries:", all_queries)
         
-        return_json = return_json +  '{ "n": "server_lite_10744",'
+        return_json = return_json +  '{ "n": "server_lite_12348",'
         if all_queries == "if=oic.if.baseline":
-            return_json = return_json + '"rt": ["oic.wk.d"],'
+            return_json = return_json + '"rt": ["oic.wk.d","oic.d.light"],'
             return_json = return_json + '"if": ["oic.if.r", "oic.if.baseline"],'
         return_json = return_json + '"icv": "ocf.2.0.2", '
         return_json = return_json + '"dmv": "ocf.res.1.0.0, ocf.sh.1.0.0",'
-        return_json = return_json + '"piid": "'+ocf_piid+'"' 
+        return_json = return_json + '"piid": "'+ocf_piid+'",'
+        return_json = return_json + '"di": "'+ocf_di+'"' 
         return_json = return_json + " }"
         
         json_data = json.loads(return_json)
@@ -601,7 +606,13 @@ class CoAPServer(CoAP):
         print("  adding resource: '/loadxx/'")
  
         #print("  start on " + host + ":" + str(port))
-        ocf_ip_address = "["+ str(host) + "]:" + str(port)
+        #ocf_ip_address = "["+ str(host) + "]:" + str(port)
+        
+        # CTT can't handle zone ID
+        # e.g. remove %13 from {"ep":"coaps://[fe80::b536:6766:9ed9:15a4%13]:55555"}
+        my_host = host.replace("%13","")
+        ocf_ip_address = "["+ str(my_host) + "]:" + str(port)
+        
         self.ocf_ip_address = ocf_ip_address
         print("  start on (ip): coap://"+ocf_ip_address)
         #print(" python3 coapclient.py -o GET -p "coap://[fe80::b536:6766:9ed9:15a4%13]:55555/oic/d?if=oic.if.baseline -c 10000
@@ -639,7 +650,7 @@ def main(argv):  # pragma: no cover
 
     print("------------------------------------")
     print("Used input file : \"../device_output/out_codegeneration_merged.swagger.json\"")
-    print("OCF Server name : \"server_lite_10744\"")
+    print("OCF Server name : \"server_lite_12348\"")
     print("OCF Device Type : \"oic.d.light\"")
     print("OCF piid        : ", ocf_piid)
     print("OCF pi          : ", ocf_pi)
