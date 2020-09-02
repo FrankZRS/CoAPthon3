@@ -22,7 +22,7 @@
 # tool_version          : 20200103
 # input_file            : ../device_output/out_codegeneration_merged.swagger.json
 # version of input_file : 20190222
-# title of input_file   : server_lite_12348
+# title of input_file   : server_lite_22424
 
 #!/usr/local/bin/python
 # -*- coding: utf-8 -*-
@@ -40,8 +40,8 @@ ocf_piid="e61c3e6b-9c54-4b81-8ce5-f9039c1d04d9"
 ocf_pi="e61c3e6b-9c54-4b81-8ce5-f9039c1d04d8"
 ocf_di="e61c3e6b-9c54-4b81-8ce5-f9039c1d04d8"
 global ocf_ip_address
-ocf_ip_address="oic.d.light"
-ocf_device_type="oic.d.sensor"
+ocf_ip_address=""
+ocf_device_type="oic.d.light"
 introspectionfile_json="../out_introspection_merged.swagger.json"
 introspectionfile_cbor="../out_introspection_merged.swagger.json.cbor"
 
@@ -51,6 +51,91 @@ def bool2string(input):
     return "false"
 
 
+
+# class : "/activity"
+class c_activityResource(Resource):
+    def __init__(self, name="c_activityResource", coap_server=None):
+        super(c_activityResource, self).__init__(name, coap_server, visible=True,
+                                             observable=True, allow_children=True)
+        self.payload = ""
+        self.resource_type = "oic.r.activity"
+        self.content_type = "text/plain"
+        interfaces_array = ['oic.if.a', 'oic.if.baseline']
+        self.interface_type =  str(interfaces_array[0]) + "," + str(interfaces_array[1])
+        self.m_activity = "mystring"  # string
+        self.m_ccal_day = 0.0  # number
+        self.m_ccal_day_precision = 0.0  # number
+        self.m_ccal_day_range = "unknown"  # something else
+        self.m_ccal_day_step = 0.0  # number
+        self.m_ccal_reset = 0.0  # number
+        self.m_ccal_reset_precision = 0.0  # number
+        self.m_ccal_reset_range = "unknown"  # something else
+        self.m_ccal_reset_step = 0.0  # number
+        self.m_steps_day = 0  # integer
+        self.m_steps_day_range = "unknown"  # something else
+        self.m_steps_day_step = 0  # integer
+        self.m_steps_reset = 0  # integer
+        self.m_steps_reset_range = "unknown"  # something else
+        self.m_steps_reset_step = 0  # integer 
+    def create_return_json(self):
+        return_json = "{"
+        
+        return_json = return_json + '"activity" : "' + str(self.m_activity) + '"' + ','
+        
+        return_json = return_json + '"ccal_day" : ' + str(self.m_ccal_day) + ','
+        
+        return_json = return_json + '"ccal_day_precision" : ' + str(self.m_ccal_day_precision) + ','
+        
+        return_json = return_json + '"ccal_day_range" : ' + str(self.m_ccal_day_range) + ','
+        
+        return_json = return_json + '"ccal_day_step" : ' + str(self.m_ccal_day_step) + ','
+        
+        return_json = return_json + '"ccal_reset" : ' + str(self.m_ccal_reset) + ','
+        
+        return_json = return_json + '"ccal_reset_precision" : ' + str(self.m_ccal_reset_precision) + ','
+        
+        return_json = return_json + '"ccal_reset_range" : ' + str(self.m_ccal_reset_range) + ','
+        
+        return_json = return_json + '"ccal_reset_step" : ' + str(self.m_ccal_reset_step) + ','
+        
+        return_json = return_json + '"steps_day" : ' + str(self.m_steps_day) + ','
+        
+        return_json = return_json + '"steps_day_range" : ' + str(self.m_steps_day_range) + ','
+        
+        return_json = return_json + '"steps_day_step" : ' + str(self.m_steps_day_step) + ','
+        
+        return_json = return_json + '"steps_reset" : ' + str(self.m_steps_reset) + ','
+        
+        return_json = return_json + '"steps_reset_range" : ' + str(self.m_steps_reset_range) + ','
+        
+        return_json = return_json + '"steps_reset_step" : ' + str(self.m_steps_reset_step) 
+        return_json = return_json + " }"
+        return return_json
+
+    def render_GET_advanced(self, request, response):
+        print ("GET /activity :", request.accept)
+        return_json = self.create_return_json()
+        print ("  ",return_json)
+        json_data = json.loads(return_json)
+        self.payload = str(return_json)
+        print ("/activity : get query: ", request.uri_query)
+        print ("/activity : get returning: ", return_json)
+        response.code = defines.Codes.CONTENT.number
+        response.content_type = request.accept
+        if request.accept == defines.Content_types["text/plain"]:
+            print ("  content type text/plain")
+            response.payload = return_json
+        elif request.accept == defines.Content_types["application/json"]:
+            print ("  content type application/json")
+            response.payload = return_json
+        elif request.accept == defines.Content_types["application/cbor"]:
+            print ("  content type application/cbor")
+            response.payload = bytes(cbor.dumps(json_data))
+        elif request.accept == defines.Content_types["application/vnd.ocf+cbor"]:
+            print ("  content type application/vnd.ocf+cbor")
+            response.payload = bytes(cbor.dumps(json_data))
+            response.ocf_content_format_version = int(2048)
+        return self, response
 
 # class : "/binaryswitch2"
 class c_binaryswitch2Resource(Resource):
@@ -127,71 +212,7 @@ class c_binaryswitch2Resource(Resource):
                 json_data = json.loads(ret_json_string)
                 self.payload = (defines.Content_types["application/vnd.ocf+cbor"], bytes(cbor.dumps(json_data)))
                 return self
-        return None
-
-# class : "/loadxx"
-class c_loadxxResource(Resource):
-    def __init__(self, name="c_loadxxResource", coap_server=None):
-        super(c_loadxxResource, self).__init__(name, coap_server, visible=True,
-                                             observable=True, allow_children=True)
-        self.payload = ""
-        self.resource_type = ""
-        self.content_type = "text/plain"
-        interfaces_array = ['oic.if.s', 'oic.if.baseline']
-        self.interface_type =  str(interfaces_array[0]) + "," + str(interfaces_array[1])
-        self.m_Application_Type = "mystring"  # string
-        self.m_Current_Calibration = 0.0  # number
-        self.m_Max_Measured_Value = 0.0  # number
-        self.m_Max_Range_Value = 0.0  # number
-        self.m_Min_Measured_Value = 0.0  # number
-        self.m_Min_Range_Value = 0.0  # number
-        self.m_Sensor_Units = "mystring"  # string
-        self.m_Sensor_Value = 0.0  # number 
-    def create_return_json(self):
-        return_json = "{"
-        
-        return_json = return_json + '"Application_Type" : "' + str(self.m_Application_Type) + '"' + ','
-        
-        return_json = return_json + '"Current_Calibration" : ' + str(self.m_Current_Calibration) + ','
-        
-        return_json = return_json + '"Max_Measured_Value" : ' + str(self.m_Max_Measured_Value) + ','
-        
-        return_json = return_json + '"Max_Range_Value" : ' + str(self.m_Max_Range_Value) + ','
-        
-        return_json = return_json + '"Min_Measured_Value" : ' + str(self.m_Min_Measured_Value) + ','
-        
-        return_json = return_json + '"Min_Range_Value" : ' + str(self.m_Min_Range_Value) + ','
-        
-        return_json = return_json + '"Sensor_Units" : "' + str(self.m_Sensor_Units) + '"' + ','
-        
-        return_json = return_json + '"Sensor_Value" : ' + str(self.m_Sensor_Value) 
-        return_json = return_json + " }"
-        return return_json
-
-    def render_GET_advanced(self, request, response):
-        print ("GET /loadxx :", request.accept)
-        return_json = self.create_return_json()
-        print ("  ",return_json)
-        json_data = json.loads(return_json)
-        self.payload = str(return_json)
-        print ("/loadxx : get query: ", request.uri_query)
-        print ("/loadxx : get returning: ", return_json)
-        response.code = defines.Codes.CONTENT.number
-        response.content_type = request.accept
-        if request.accept == defines.Content_types["text/plain"]:
-            print ("  content type text/plain")
-            response.payload = return_json
-        elif request.accept == defines.Content_types["application/json"]:
-            print ("  content type application/json")
-            response.payload = return_json
-        elif request.accept == defines.Content_types["application/cbor"]:
-            print ("  content type application/cbor")
-            response.payload = bytes(cbor.dumps(json_data))
-        elif request.accept == defines.Content_types["application/vnd.ocf+cbor"]:
-            print ("  content type application/vnd.ocf+cbor")
-            response.payload = bytes(cbor.dumps(json_data))
-            response.ocf_content_format_version = int(2048)
-        return self, response 
+        return None 
 
 #
 # the oic.wk.res implementation
@@ -202,9 +223,9 @@ class OICRESResource(Resource):
                                              observable=True, allow_children=True)
         self.value = 0
         self.payload = str(self.value)
-        self.resource_type = "oic.wk.res"
+        self.resource_type = "oic.wk.res oic.d.light"
         self.content_type = "application/json"  #application/cbor
-        self.interface_type = "oic.if.r"
+        self.interface_type = "oic.if.ll oic.if.baseline"
 
     def render_GET_advanced(self, request, response):
         print ("OICRES: get :", request.accept )
@@ -252,11 +273,11 @@ class OICRESResource(Resource):
         return_json = return_json + ',{ "anchor": "ocf://'+ocf_piid+ '", "href": "/oic/sec/csr",'
         return_json = return_json + ' "rt": ["oic.r.csr"], "if": ["oic.if.baseline"], "p": {"bm": 3},'
         return_json = return_json + ' "eps": [ {"ep": "coap://'+ocf_ip_address+'"},{"ep": "coaps://'+ocf_ip_address+'"} ] }'
+        return_json = return_json + ',{ "anchor": "ocf://'+ocf_piid+ '", "href": "/activity",'
+        return_json = return_json + ' "rt": ["oic.r.activity"],"if":' + '["oic.if.a", "oic.if.baseline"],'
+        return_json = return_json + ' "p": {"bm": 3}, "eps": [ {"ep": "coap://'+ocf_ip_address+'"}, {"ep": "coaps://'+ocf_ip_address+'"}]}'
         return_json = return_json + ',{ "anchor": "ocf://'+ocf_piid+ '", "href": "/binaryswitch2",'
         return_json = return_json + ' "rt": ["oic.r.switch.binary"],"if":' + '["oic.if.a", "oic.if.baseline"],'
-        return_json = return_json + ' "p": {"bm": 3}, "eps": [ {"ep": "coap://'+ocf_ip_address+'"}, {"ep": "coaps://'+ocf_ip_address+'"}]}'
-        return_json = return_json + ',{ "anchor": "ocf://'+ocf_piid+ '", "href": "/loadxx",'
-        return_json = return_json + ' "rt": [""],"if":' + '["oic.if.s", "oic.if.baseline"],'
         return_json = return_json + ' "p": {"bm": 3}, "eps": [ {"ep": "coap://'+ocf_ip_address+'"}, {"ep": "coaps://'+ocf_ip_address+'"}]}' 
         return_json = return_json + " ]"
         
@@ -283,7 +304,6 @@ class OICRESResource(Resource):
             response.payload = bytes(cbor.dumps(json_data))
             response.ocf_content_format_version = int(2048)
         
-        #print (response)
         return self, response
         
 #
@@ -292,11 +312,11 @@ class OICRESResource(Resource):
 # code returns not implemented.       
 class OICResource(Resource):
     def __init__(self, name="OICResource", coap_server=None):
-        super(OICResource, self).__init__(name, coap_server, visible=True,
-                                             observable=True, allow_children=True)
+        super(OICResource, self).__init__(name, coap_server, visible=False,
+                                             observable=False, allow_children=True)
         self.value = 0
         self.payload = str(self.value)
-        self.resource_type = "oic.wk.d"
+        self.resource_type = ""
         self.content_type = "application/cbor"  #application/cbor
         self.interface_type = "oic.if.r" #, "oic.if.baseline"
 
@@ -311,11 +331,11 @@ class OICResource(Resource):
 # code returns not implemented.       
 class OICSECResource(Resource):
     def __init__(self, name="OICSECResource", coap_server=None):
-        super(OICSECResource, self).__init__(name, coap_server, visible=True,
-                                             observable=True, allow_children=True)
+        super(OICSECResource, self).__init__(name, coap_server, visible=False,
+                                             observable=False, allow_children=True)
         self.value = 0
         self.payload = str(self.value)
-        self.resource_type = "oic.wk.d"
+        self.resource_type = ""
         self.content_type = "application/cbor"  #application/cbor
         self.interface_type = "oic.if.r" #, "oic.if.baseline"
 
@@ -337,7 +357,7 @@ class OICDResource(Resource):
         self.payload = str(self.value)
         self.resource_type = "oic.wk.d oic.d.light"
         self.content_type = "application/cbor"  #application/cbor
-        self.interface_type = "oic.if.r" #, "oic.if.baseline"
+        self.interface_type = "oic.if.r oic.if.baseline" #, "oic.if.baseline"
 
     def render_GET_advanced(self, request, response):
         global ocf_device_type
@@ -347,7 +367,7 @@ class OICDResource(Resource):
         all_queries = request.uri_query
         print ("OICD: queries:", all_queries)
         
-        return_json = return_json +  '{ "n": "server_lite_12348",'
+        return_json = return_json +  '{ "n": "server_lite_22424",'
         if all_queries == "if=oic.if.baseline":
             return_json = return_json + '"rt": ["oic.wk.d","oic.d.light"],'
             return_json = return_json + '"if": ["oic.if.r", "oic.if.baseline"],'
@@ -599,11 +619,11 @@ class CoAPServer(CoAP):
         self.add_resource('/oic/sec/doxm', OICDOXMResource())
         
 
+        self.add_resource('/activity/', c_activityResource())
+        print("  adding resource: '/activity/'")
+
         self.add_resource('/binaryswitch2/', c_binaryswitch2Resource())
         print("  adding resource: '/binaryswitch2/'")
-
-        self.add_resource('/loadxx/', c_loadxxResource())
-        print("  adding resource: '/loadxx/'")
  
         #print("  start on " + host + ":" + str(port))
         #ocf_ip_address = "["+ str(host) + "]:" + str(port)
@@ -650,7 +670,7 @@ def main(argv):  # pragma: no cover
 
     print("------------------------------------")
     print("Used input file : \"../device_output/out_codegeneration_merged.swagger.json\"")
-    print("OCF Server name : \"server_lite_12348\"")
+    print("OCF Server name : \"server_lite_22424\"")
     print("OCF Device Type : \"oic.d.light\"")
     print("OCF piid        : ", ocf_piid)
     print("OCF pi          : ", ocf_pi)
