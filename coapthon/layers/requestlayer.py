@@ -59,7 +59,9 @@ class RequestLayer(object):
         transaction.response.token = transaction.request.token
         transaction.response.token_length = transaction.request.token_length
         print ( " RequestLayer _handle_get ",transaction.request.token)
+        print ( " RequestLayer _handle_get path: ", path)
         if path == defines.DISCOVERY_URL and not wkc_resource_is_defined:
+            print (" discovery...")
             transaction = self._server.resourceLayer.discover(transaction)
         else:
             try:

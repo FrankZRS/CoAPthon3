@@ -511,16 +511,18 @@ class ResourceLayer(object):
 
     def discover(self, transaction):
         """
-        Render a GET request to the .well-know/core link.
+        Render a GET request to the .well-known/core link.
 
         :param transaction: the transaction
         :return: the transaction
         """
+        print (" ::discover");
         transaction.response.code = defines.Codes.CONTENT.number
         payload = ""
         for i in self._parent.root.dump():
             if i == "/":
                 continue
+            print ("   i",i)
             resource = self._parent.root[i]
             if resource.visible:
                 ret = self.valid(transaction.request.uri_query, resource.attributes)
@@ -547,7 +549,8 @@ class ResourceLayer(object):
                 k = tmp[0]
                 v = tmp[1]
                 if k in attributes:
-                    if v == attributes[k]:
+                    #if v == attributes[k]:
+                    if v in attributes[k]:
                         continue
                     else:
                         return False
@@ -598,4 +601,6 @@ class ResourceLayer(object):
                 v = resource.attributes[k]
                 if v is not None:
                     msg = msg[:-1] + ";" + k + "=" + v + ","
+        print ("corelinkformat ", msg)
+        
         return msg
