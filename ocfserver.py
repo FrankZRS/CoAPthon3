@@ -22,7 +22,7 @@
 # tool_version          : 20200103
 # input_file            : ../device_output/out_codegeneration_merged.swagger.json
 # version of input_file : 20190222
-# title of input_file   : server_lite_22424
+# title of input_file   : server_lite_14808
 
 #!/usr/local/bin/python
 # -*- coding: utf-8 -*-
@@ -59,7 +59,7 @@ class c_activityResource(Resource):
                                              observable=True, allow_children=True)
         self.payload = ""
         self.resource_type = "oic.r.activity"
-        self.content_type = "text/plain"
+        self.content_type = "application/vnd.ocf+cbor"
         interfaces_array = ['oic.if.a', 'oic.if.baseline']
         self.interface_type =  str(interfaces_array[0]) + "," + str(interfaces_array[1])
         self.m_activity = "mystring"  # string
@@ -144,7 +144,7 @@ class c_binaryswitch2Resource(Resource):
                                              observable=True, allow_children=True)
         self.payload = ""
         self.resource_type = "oic.r.switch.binary"
-        self.content_type = "text/plain"
+        self.content_type = "application/vnd.ocf+cbor"
         interfaces_array = ['oic.if.a', 'oic.if.baseline']
         self.interface_type =  str(interfaces_array[0]) + "," + str(interfaces_array[1])
         self.m_value = True   # boolean 
@@ -224,7 +224,7 @@ class OICRESResource(Resource):
         self.value = 0
         self.payload = str(self.value)
         self.resource_type = "oic.wk.res oic.d.light"
-        self.content_type = "application/json"  #application/cbor
+        self.content_type = "application/vnd.ocf+cbor"  #application/cbor
         self.interface_type = "oic.if.ll oic.if.baseline"
 
     def render_GET_advanced(self, request, response):
@@ -317,7 +317,7 @@ class OICResource(Resource):
         self.value = 0
         self.payload = str(self.value)
         self.resource_type = ""
-        self.content_type = "application/cbor"  #application/cbor
+        self.content_type = "application/vnd.ocf+cbor"  #application/cbor
         self.interface_type = "oic.if.r" #, "oic.if.baseline"
 
     def render_GET_advanced(self, request, response):
@@ -336,7 +336,7 @@ class OICSECResource(Resource):
         self.value = 0
         self.payload = str(self.value)
         self.resource_type = ""
-        self.content_type = "application/cbor"  #application/cbor
+        self.content_type = "application/vnd.ocf+cbor"  #application/cbor
         self.interface_type = "oic.if.r" #, "oic.if.baseline"
 
     def render_GET_advanced(self, request, response):
@@ -356,7 +356,7 @@ class OICDResource(Resource):
         self.value = 0
         self.payload = str(self.value)
         self.resource_type = "oic.wk.d oic.d.light"
-        self.content_type = "application/cbor"  #application/cbor
+        self.content_type = "application/vnd.ocf+cbor"  #application/cbor
         self.interface_type = "oic.if.r oic.if.baseline" #, "oic.if.baseline"
 
     def render_GET_advanced(self, request, response):
@@ -367,7 +367,7 @@ class OICDResource(Resource):
         all_queries = request.uri_query
         print ("OICD: queries:", all_queries)
         
-        return_json = return_json +  '{ "n": "server_lite_22424",'
+        return_json = return_json +  '{ "n": "server_lite_14808",'
         if all_queries == "if=oic.if.baseline":
             return_json = return_json + '"rt": ["oic.wk.d","oic.d.light"],'
             return_json = return_json + '"if": ["oic.if.r", "oic.if.baseline"],'
@@ -412,7 +412,7 @@ class OICPResource(Resource):
         self.value = 0
         self.payload = str(self.value)
         self.resource_type = "oic.wk.p"
-        self.content_type = "application/cbor"  #application/cbor
+        self.content_type = "application/vnd.ocf+cbor"  #application/cbor
         self.interface_type = "oic.if.r" #, "oic.if.baseline"
 
     def render_GET_advanced(self, request, response):
@@ -465,7 +465,7 @@ class introspectionResource(Resource):
                        { "content-type": "application/cbor", "protocol": "coap", "url": "/ifile"}] }
         self.payload = str(self.value)
         self.resource_type = "oic.wk.introspection"
-        self.content_type = "application/cbor"
+        self.content_type = "application/vnd.ocf+cbor"
         self.interface_type = "oic.if.r"
 
     def render_GET_advanced(self, request, response):
@@ -500,7 +500,7 @@ class introspectionFileResource(Resource):
                                              observable=True, allow_children=False)
         self.payload = " illegal "
         self.resource_type = "oic.wk.introspection"
-        self.content_type = "application/cbor"
+        self.content_type = "application/vnd.ocf+cbor"
         self.interface_type = "oic.if.r"
 
     def render_GET(self, request):
@@ -537,7 +537,7 @@ class OICDOXMResource(Resource):
         self.value = 0
         self.payload = str(self.value)
         self.resource_type = "oic.r.doxm"
-        self.content_type = "application/cbor"  #application/cbor
+        self.content_type = "application/vnd.ocf+cbor"  #application/cbor
         self.interface_type = "oic.if.rw" #, "oic.if.baseline"
 
     def render_GET_advanced(self, request, response):
@@ -670,7 +670,7 @@ def main(argv):  # pragma: no cover
 
     print("------------------------------------")
     print("Used input file : \"../device_output/out_codegeneration_merged.swagger.json\"")
-    print("OCF Server name : \"server_lite_22424\"")
+    print("OCF Server name : \"server_lite_14808\"")
     print("OCF Device Type : \"oic.d.light\"")
     print("OCF piid        : ", ocf_piid)
     print("OCF pi          : ", ocf_pi)
