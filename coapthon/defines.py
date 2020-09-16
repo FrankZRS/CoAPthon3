@@ -29,8 +29,10 @@ DISCOVERY_URL = "/.well-known/core"
 ALL_COAP_NODES = "224.0.1.187"
 
 ALL_COAP_NODES_IPV6 = "FF00::FD"
+ALL_COAP_NODES_IPV6_LINK = "FF02::FD"
+ALL_COAP_NODES_IPV6_SITE = "FF05::FD"
 
-# scope realm local
+# scope link local
 ALL_OCF_NODES_S5_IPV6 = "FF05::158"
 # scope site local
 ALL_OCF_NODES_S3_IPV6 = "FF03::158"
