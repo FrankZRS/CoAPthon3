@@ -98,7 +98,7 @@ class HelperClient(object):
         :return: the response
         """
         request = self.mk_request(defines.Codes.GET, path)
-        request.token = generate_random_token(2)
+        request.token = generate_random_token(4)
 
         for k, v in kwargs.items():
             
@@ -120,7 +120,7 @@ class HelperClient(object):
         :return: the response
         """
         request = self.mk_request_non(defines.Codes.GET, path)
-        #request.token = generate_random_token(2)
+        request.token = generate_random_token(4)
 
         for k, v in kwargs.items():
             print ("get_none", k,v)
@@ -225,7 +225,7 @@ class HelperClient(object):
           request = self.mk_request_non(defines.Codes.GET, "/oic/res")
         else:
           request = self.mk_request_non(defines.Codes.GET, path)
-        request.token = generate_random_token(2)
+        request.token = generate_random_token(4)
         print ("discover : path=", path)
         for k, v in kwargs.items():
             print ("discover : has:", k,v)
@@ -251,15 +251,17 @@ class HelperClient(object):
             thread = threading.Thread(target=self._thread_body, args=(request, callback))
             thread.start()
         else:
-            self.protocol.send_message(request)
+            uuid = self.protocol.send_message(request)
+            #print(uuid)
+            return uuid
             if no_response:
                 return
             try:
+                #print("ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ")
                 response = self.queue.get(block=True, timeout=timeout)
             except Empty:
                 #if timeout is set
                 response = None
-            return response
 
     def send_empty(self, empty):  # pragma: no cover
         """

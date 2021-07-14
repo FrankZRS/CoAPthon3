@@ -648,8 +648,8 @@ def main(argv):  # pragma: no cover
     host_name = socket.gethostname() 
     #ip = socket.gethostbyname(host_name) # local ipv4
     data = socket.getaddrinfo(host_name, None, socket.AF_INET6)
-    ip = data[0][4][0]
-    port = 55555
+    ip = "fd79:8ae:665:1:7ca9:e760:bb4b:f3ea"
+    port = 32000
     multicast = True
     
     try:

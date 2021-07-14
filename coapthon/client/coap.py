@@ -61,8 +61,10 @@ class CoAP(object):
             self._socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
         else:
-            self._socket = socket.socket(socket.AF_INET6, socket.SOCK_DGRAM)
+            self._socket = socket.socket(socket.AF_INET6, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
             self._socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            self._socket.setsockopt(socket.IPPROTO_IPV6, socket.IPV6_MULTICAST_HOPS, 5)
+
 
         self._receiver_thread = None
 
@@ -104,17 +106,20 @@ class CoAP(object):
         :param message: the message to send
         """
         if isinstance(message, Request):
-            request = self._requestLayer.send_request(message)
+            request = self._requestLayer.send_request(message) 
             request = self._observeLayer.send_request(request)
-            request = self._blockLayer.send_request(request)
-            transaction = self._messageLayer.send_request(request)
-            self.send_datagram(transaction.request)
+            request = self._blockLayer.send_request(request)   
+            transaction = self._messageLayer.send_request(request)          
+            uuid = self.send_datagram(transaction.request)
             if transaction.request.type == defines.Types["CON"]:
                 self._start_retransmission(transaction, transaction.request)
         elif isinstance(message, Message):
             message = self._observeLayer.send_empty(message)
             message = self._messageLayer.send_empty(None, None, message)
-            self.send_datagram(message)
+            uuid = self.send_datagram(message)
+        # print("MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM")
+        # print(uuid)
+        return uuid
 
     @staticmethod
     def _wait_for_retransmit_thread(transaction):
@@ -167,10 +172,20 @@ class CoAP(object):
                 if opt.value == 26:
                     return
 
-        if self._receiver_thread is None or not self._receiver_thread.isAlive():
-            self._receiver_thread = threading.Thread(target=self.receive_datagram)
-            self._receiver_thread.daemon = True
-            self._receiver_thread.start()
+        # if self._receiver_thread is None or not self._receiver_thread.isAlive():
+        #     print("1111111111111111111111111")
+        #     self._receiver_thread = threading.Thread(target=self.receive_datagram)
+        #     self._receiver_thread.daemon = True
+        #     self._receiver_thread.start()
+        datagram, addr = self._socket.recvfrom(1152)
+        datagram_received = str(datagram)
+        # print("GGGGGGGGGGGGGGGGGGGGGGGG")
+        # print(datagram_received)
+        pos1 = datagram_received.find("ocf://")
+        uuid = datagram_received[(pos1 + 6):(pos1 + 42)]
+        # print(uuid)
+        # print("GGGGGGGGGGGGGGGGGGGGGGGG")
+        return uuid
 
     def _start_retransmission(self, transaction, message):
         """
@@ -236,10 +251,15 @@ class CoAP(object):
         Receive datagram from the UDP socket and invoke the callback function.
         """
         logger.debug("Start receiver Thread")
+        # print("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
         while not self.stopped.isSet():
             self._socket.settimeout(0.1)
             try:
                 datagram, addr = self._socket.recvfrom(1152)
+                # print("BBBBBBBBBBBBBBBBBBBBBBBBBBB")
+                # print(datagram)
+                # print(addr)
+                # print("BBBBBBBBBBBBBBBBBBBBBBBBBBB")
             except socket.timeout:  # pragma: no cover
                 continue
             except Exception as e:  # pragma: no cover
@@ -260,7 +280,6 @@ class CoAP(object):
                 host, port, tmp1, tmp2 = addr
 
             source = (host, port)
-
             message = serializer.deserialize(datagram, source)
 
             if isinstance(message, Response):

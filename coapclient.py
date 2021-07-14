@@ -95,7 +95,7 @@ def main():  # pragma: no cover
     content_type = None
     #ct = {'content_type': defines.Content_types["application/link-format"]}
     ct = {}
-    ct['accept'] = 0
+    ct['accept'] = 10000
     ct['ocf_accept_content_format_version'] = int(2048)
     ct['ocf_content_format_version'] = int(2048)
     
@@ -143,7 +143,10 @@ def main():  # pragma: no cover
         usage()
         sys.exit(2)
 
-    host, port, path = parse_uri(path)
+    # host, port, path = parse_uri(path)
+    host = "ff05::158"
+    port = 5683
+    path ="oic/res"
     try:
         tmp = socket.gethostbyname(host)
         host = tmp
