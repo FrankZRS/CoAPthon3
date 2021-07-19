@@ -20,7 +20,7 @@ def main():  # pragma: no cover
     ## Get UUID ##
     host = "ff05::158"
     port = 5683
-    path ="oic/res"
+    path ="oic/d"
 
     #ct = {'content_type': defines.Content_types["application/link-format"]}
     ct = {}
@@ -31,8 +31,12 @@ def main():  # pragma: no cover
     client = HelperClient(server=(host, port))
 
     response = client.get_non(path, None, None, **ct)
-    uuid = '--uuid=' + response
-    print("UUID is: " + response)
+    payload = str(response.payload)
+    print(payload)
+    pos1 = payload.find("$")
+    uuid = payload[(pos1 + 1):(pos1 + 37)]
+    print("UUID is: " + uuid)
+
     client.stop()
 
     ## Get IP address ##
@@ -41,23 +45,28 @@ def main():  # pragma: no cover
 
     ip_address = s.getsockname()[0]
     print("IP address is: " + ip_address)
-    ip = 'http://' + ip_address + ':32000'
 
     s.close()
 
     ## Run OCF CTT ##
     # Option 1: Run full test #
-    # subprocess.Popen([r'C:\Program Files (x86)\OCF Conformance Test Tool\CTT_CLI.exe', r'--enableAutomation', 
-    #                     r'--apiEndpoint', ip, 
+    # subprocess.Popen([r'C:\Program Files (x86)\OCF Conformance Test Tool\CTT_CLI.exe', 
+    #                     r'--enableAutomation', 
+    #                     r'--apiEndpoint', r'http://' + ip_address + r':32001', 
     #                     r'--oicserver', r'--profile=Server', 
     #                     r'-pics=C:\Program Files (x86)\OCF Conformance Test Tool\PICS_module.json', 
-    #                     uuid])
+    #                     r'--uuid=' + uuid])
     
     # Option 2: Run selected tests #
     subprocess.Popen([r'C:\Program Files (x86)\OCF Conformance Test Tool\CTT_CLI.exe', 
-                        r'-s', r'--profile=C:\Users\frank\Documents\autoctt-main\OCF_profile.xml', 
+                        r'--enableAutomation', 
+                        r'--apiEndpoint', r'http://' + ip_address + r':32001', 
+                        #r'--enableAutomation', r'--apiEndpoint=http://192.168.12.60:32001', 
+                        r'--enableExtendedAutomation', 
+                        r'--extendedApiEndpoint', r'http://' + ip_address + r':32001', 
+                        r'-s', r'--profile=C:\Users\frank\Documents\autoctt-main\full_run.xml', 
                         r'-pics=C:\Program Files (x86)\OCF Conformance Test Tool\PICS_module.json', 
-                        uuid])
+                        r'--uuid=' + uuid])
 
 if __name__ == '__main__':  # pragma: no cover
     main()

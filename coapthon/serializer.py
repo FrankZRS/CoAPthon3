@@ -37,7 +37,6 @@ class Serializer(object):
         :return: the message
         :rtype: Message
         """
-        print("ccccccccccccccccccccccccccccccccccccccccccc")
         try:
             fmt = "!BBH"
             pos = struct.calcsize(fmt)
