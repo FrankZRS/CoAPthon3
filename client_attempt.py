@@ -49,19 +49,10 @@ def main():  # pragma: no cover
     s.close()
 
     ## Run OCF CTT ##
-    # Option 1: Run full test #
-    # subprocess.Popen([r'C:\Program Files (x86)\OCF Conformance Test Tool\CTT_CLI.exe', 
-    #                     r'--enableAutomation', 
-    #                     r'--apiEndpoint', r'http://' + ip_address + r':32001', 
-    #                     r'--oicserver', r'--profile=Server', 
-    #                     r'-pics=C:\Program Files (x86)\OCF Conformance Test Tool\PICS_module.json', 
-    #                     r'--uuid=' + uuid])
-    
-    # Option 2: Run selected tests #
+    # Remember to change the paths of CTT_CLI.exe, the test profile and the PICS file
     subprocess.Popen([r'C:\Program Files (x86)\OCF Conformance Test Tool\CTT_CLI.exe', 
                         r'--enableAutomation', 
                         r'--apiEndpoint', r'http://' + ip_address + r':32001', 
-                        #r'--enableAutomation', r'--apiEndpoint=http://192.168.12.60:32001', 
                         r'--enableExtendedAutomation', 
                         r'--extendedApiEndpoint', r'http://' + ip_address + r':32001', 
                         r'-s', r'--profile=C:\Users\frank\Documents\autoctt-main\full_run.xml', 
