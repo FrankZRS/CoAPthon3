@@ -120,7 +120,7 @@ class HelperClient(object):
         :return: the response
         """
         request = self.mk_request_non(defines.Codes.GET, path)
-        request.token = generate_random_token(4)
+        #request.token = generate_random_token(2)
 
         for k, v in kwargs.items():
             print ("get_none", k,v)
