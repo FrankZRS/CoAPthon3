@@ -5,7 +5,7 @@ CoAPthon3 is a porting to python3 of my CoAPthon library. CoAPthon3 is a python3
 
 
 # Running Automated OCF CTT - Added by Frank Zhong on 20/Jul/2021
-The 'client_attempt.py' script can be used for running OCF Certification Tests automatically.
+The 'autoctt_client.py' script can be used for running OCF Certification Tests automatically.
 
 ## Prerequisites
 This script needs to be run in association with the 'autoctt' library, so please first download the library (https://github.com/Cascoda/autoctt) and follow the instructions in README.md to set up an HTTP server. During an OCF CTT test run, this server handles HTTP requests sent by the basic/extended API of OCTT's Tool Automation Framework.
@@ -13,7 +13,7 @@ This script needs to be run in association with the 'autoctt' library, so please
 Please also make sure that 'OCF Conformance Test Tool', the application that actually runs the tests, is installed on your PC; Check that it contains 'CTT_CLI.exe', which is the command line interface version of the test tool. 
 
 ## Modifying the Script
-For 'client_attempt' to initiate OCF Certification Tests successfully, please follow the steps below to modify the script before running it: 
+For 'autoctt_client' to initiate OCF Certification Tests successfully, please follow the steps below to modify the script before running it: 
 
     1. Search for the 'Run OCF CTT' section of the script and locate where the subprocess.Popen() function is called, which contains the Powershell command to start a test run; 
 
@@ -28,8 +28,8 @@ For 'client_attempt' to initiate OCF Certification Tests successfully, please fo
     4. Change the path to the 'PICS_module.json' file. This is a file inside the 'autoctt' library that needs to be included for running OCF Certification Tests on a Chili 2 module. 
 
 ## Usage
-After completing all the abovementioned settings, you can simply start 'client_attempt' using: 
+After completing all the abovementioned settings, you can simply start 'autoctt_client' using: 
 
-'py client_attempt.py'
+'py autoctt_client.py'
 
 All test results will be logged into .txt files inside the 'autoctt' library. 
