@@ -11,6 +11,7 @@ import subprocess
 from coapthon.client.helperclient import HelperClient
 from coapthon.utils import parse_uri
 from coapthon import defines
+from coapthon.serializer import Serializer
 
 __author__ = 'Giacomo Tanganelli'
 
@@ -31,11 +32,13 @@ def main():  # pragma: no cover
     client = HelperClient(server=(host, port))
 
     response = client.get_non(path, None, None, **ct)
-    payload = str(response.payload)
-    print(payload)
-    pos1 = payload.find("$")
-    uuid = payload[(pos1 + 1):(pos1 + 37)]
-    print("UUID is: " + uuid)
+    payload = response.payload
+    payload_parsed = cbor.loads(payload)
+
+    uuid = payload_parsed['di']
+    name = payload_parsed['n']
+    print("Device UUID is: " + uuid)
+    print("Name of the device is: " + name)
 
     client.stop()
 
