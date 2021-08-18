@@ -50,8 +50,9 @@ def client_callback(response):
             json_string = json.dumps(json_data, indent=2, sort_keys=True)
             print (json_string)
         else:
-            print ("type, len", type(response.payload), len(response.payload))
-            print (response.payload)
+            if response.payload is not None:
+              print ("type, len", type(response.payload), len(response.payload))
+              print (response.payload)
     else:
         print (" Response : None")
     #check = True
@@ -95,10 +96,10 @@ def main():  # pragma: no cover
     content_type = None
     #ct = {'content_type': defines.Content_types["application/link-format"]}
     ct = {}
-    ct['accept'] = 0
-    ct['ocf_accept_content_format_version'] = int(2048)
-    ct['ocf_content_format_version'] = int(2048)
-    
+    ct['accept'] = 10000
+    #ct['ocf_accept_content_format_version'] = int(2048)
+    #ct['ocf_content_format_version'] = int(2048)
+    ct['accept'] = 40
     
     try:
         opts, args = getopt.getopt(sys.argv[1:], "ho:p:P:f:c:", ["help", "operation=", "path=", "payload=",
@@ -118,6 +119,9 @@ def main():  # pragma: no cover
         elif o in ("-c", "--content-type"):
             ct['accept'] = a
             print ("content type request : ", ct)
+            if a == 10000:
+                ct['ocf_accept_content_format_version'] = int(2048)
+                ct['ocf_content_format_version'] = int(2048)
         elif o in ("-f", "--payload-file"):
             with open(a, 'r') as f:
                 payload = f.read()
