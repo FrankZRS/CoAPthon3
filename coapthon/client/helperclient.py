@@ -225,8 +225,10 @@ class HelperClient(object):
           request = self.mk_request_non(defines.Codes.GET, "/oic/res")
         else:
           request = self.mk_request_non(defines.Codes.GET, path)
-        request.token = generate_random_token(2)
+        # request.token = generate_random_token(2)
+        request.token = generate_random_token(4)
         print ("discover : path=", path)
+        print ("discover : token=", request.token)
         for k, v in kwargs.items():
             print ("discover : has:", k,v)
             if hasattr(request, k):

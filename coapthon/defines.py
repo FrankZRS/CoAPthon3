@@ -177,7 +177,7 @@ class OptionRegistry(object):
         :return: option flags
         :rtype: 3-tuple (critical, unsafe, no-cache)
         """
-        opt_bytes = array.array('B', '\0\0')
+        opt_bytes = array.array('B', b'\0\0')
         if option_num < 256:
             s = struct.Struct("!B")
             s.pack_into(opt_bytes, 0, option_num)

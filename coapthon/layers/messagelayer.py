@@ -116,8 +116,8 @@ class MessageLayer(object):
         key_token = str_append_hash(host, port, response.token)
         key_token_multicast = str_append_hash(defines.ALL_COAP_NODES, 5683, response.token)
         key_token_multicast_ipv6 = str_append_hash(defines.ALL_COAP_NODES_IPV6, 5683, response.token)
-        key_token_multicast_ipv6_2 = str_append_hash(defines.ALL_COAP_NODES_IPV6_LINK, 5683, response.token)
-        
+        key_token_multicast_ipv6_link = str_append_hash(defines.ALL_COAP_NODES_IPV6_LINK, 5683, response.token)
+        key_token_multicast_ipv6_site = str_append_hash(defines.ALL_COAP_NODES_IPV6_SITE, 5683, response.token)
         key_token_multicast_ocf_5 = str_append_hash(defines.ALL_OCF_NODES_S5_IPV6, 5683, response.token)
         key_token_multicast_ocf_3 = str_append_hash(defines.ALL_OCF_NODES_S3_IPV6, 5683, response.token)
 
@@ -140,8 +140,13 @@ class MessageLayer(object):
             if response.token != transaction.request.token:
                 logger.warning("Tokens does not match -  response message " + str(host) + ":" + str(port))
                 return None, False
-        elif key_token_multicast_ipv6_2 in self._transactions_token:
-            transaction = self._transactions_token[key_token_multicast_ipv6_2]
+        elif key_token_multicast_ipv6_link in self._transactions_token:
+            transaction = self._transactions_token[key_token_multicast_ipv6_link]
+            if response.token != transaction.request.token:
+                logger.warning("Tokens does not match -  response message " + str(host) + ":" + str(port))
+                return None, False
+        elif key_token_multicast_ipv6_site in self._transactions_token:
+            transaction = self._transactions_token[key_token_multicast_ipv6_site]
             if response.token != transaction.request.token:
                 logger.warning("Tokens does not match -  response message " + str(host) + ":" + str(port))
                 return None, False

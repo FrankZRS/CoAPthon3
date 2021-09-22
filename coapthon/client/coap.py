@@ -63,6 +63,7 @@ class CoAP(object):
         else:
             self._socket = socket.socket(socket.AF_INET6, socket.SOCK_DGRAM)
             self._socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            self._socket.setsockopt(socket.IPPROTO_IPV6, socket.IPV6_MULTICAST_HOPS, 5)
 
         self._receiver_thread = None
 
@@ -167,7 +168,9 @@ class CoAP(object):
                 if opt.value == 26:
                     return
 
-        if self._receiver_thread is None or not self._receiver_thread.isAlive():
+        # if self._receiver_thread is None or not self._receiver_thread.isAlive():
+        
+        if self._receiver_thread is None or not self._receiver_thread.is_alive():
             self._receiver_thread = threading.Thread(target=self.receive_datagram)
             self._receiver_thread.daemon = True
             self._receiver_thread.start()
