@@ -54,6 +54,9 @@ def client_callback(response):
         else:
             print ("type, len", type(response.payload), len(response.payload))
             print (response.payload)
+            
+            
+            
     else:
         print (" Response : None")
     #check = True
