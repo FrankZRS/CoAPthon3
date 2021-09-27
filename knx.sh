@@ -19,15 +19,17 @@ python3 knxcoapclient.py -o DISCOVER -p coap://[FF02::FD]:5683/.well-known/core?
 python3 knxcoapclient.py -o DISCOVER -p coap://[FF02::FD]:5683/.well-known/core?if=urn:knx:if.s -c 40
 python3 knxcoapclient.py -o DISCOVER -p coap://[FF02::FD]:5683/.well-known/core?if=urn:knx:if.a -c 40
 
-## f
+# programming mode filtering.
+# works only when the device is in programming mode. returns line with serial number
+python3 knxcoapclient.py -o DISCOVER -p coap://[FF02::FD]:5683/.well-known/core?if=urn:knx:if.pm -c 40
 
+## data point (rt) filtering
 python3 knxcoapclient.py -o DISCOVER -p "coap://[FF02::FD]:5683/.well-known/core?if=urn:knx:if.a&rt=urn:knx:dpa.353*" -c 40
 python3 knxcoapclient.py -o DISCOVER -p "coap://[FF02::FD]:5683/.well-known/core?if=urn:knx:if.s&rt=urn:knx:dpa.352*" -c 40
 
-
 # ep filtering
-python3 knxcoapclient.py -o DISCOVER -p coap://[FF02::FD]:5683/.well-known/core?ep=urn:knx:sn:* -c 40
-
+python3 knxcoapclient.py -o DISCOVER -p coap://[FF02::FD]:5683/.well-known/core?ep=urn:knx:sn.* -c 40
+python3 knxcoapclient.py -o DISCOVER -p coap://[FF02::FD]:5683/.well-known/core?ep=urn:knx:sn.012346 -c 40
 
 
 
