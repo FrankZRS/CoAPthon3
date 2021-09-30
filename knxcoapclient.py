@@ -26,6 +26,46 @@ def usage():  # pragma: no cover
     print("\t-f, --payload-file=\t\tFile with payload of the request")
 
 
+def get_url(line):
+    data = line.split(">")
+    url = data[0]
+    #print(url)
+    return url[1:]
+
+def get_ct(line):
+    tagvalues = line.split(";")
+    for tag in tagvalues:
+       if tag.startswith("ct"):
+          ct_value_all = tag.split("=")
+          ct_value = ct_value_all[1].split(",")
+          return ct_value[0]
+    #print(url)
+    return ""
+
+def get_base(url):
+    # python3 knxcoapclient.py -o GET -p coap://[fe80::6513:3050:71a7:5b98]:63914/a -c 50
+    my_url = url.replace("coap://","")
+    # print (my_url)
+    mybase = my_url.split("/")
+    # print (mybase)
+    return mybase[0]
+
+def convertlinkformat2links(payload):
+    print("convertlinkformat2links\n")
+    lines = payload.splitlines()
+    for line in lines:
+        #print (line)
+        url = get_url(line)
+        ct = get_ct(line)
+        print ("python3 knxcoapclient.py -o GET -p {} -c {}".format(url,ct))
+    my_base = get_base(get_url(lines[0]))
+    print ("\n")
+    print ("python3 knxcoapclient.py -o GET -p coap://{}/dev -c 40".format(my_base))
+    print ("python3 knxcoapclient.py -o GET -p coap://{}/swu -c 40".format(my_base))
+    print ("python3 knxcoapclient.py -o GET -p coap://{}/.well-known/knx -c 50".format(my_base))
+        
+
+
 def client_callback(response):
     print(" --- Callback ---")
     if response is not None:
@@ -51,6 +91,7 @@ def client_callback(response):
             print (json_string)
         elif response.content_type == defines.Content_types["application/link-format"]:
             print (response.payload.decode())
+            convertlinkformat2links(response.payload.decode())
         else:
             print ("type, len", type(response.payload), len(response.payload))
             print (response.payload)
@@ -170,6 +211,11 @@ def main():  # pragma: no cover
             json_string = json.dumps(json_data, indent=2, sort_keys=True)
             print ("JSON ::")
             print (json_string)
+        if response.content_type == defines.Content_types["application/link-format"]:
+            #json_data = cbor.loads(response.payload)
+            #json_string = json.dumps(json_data, indent=2, sort_keys=True)
+            #print ("JSON ::")
+            print (response.payload.decode())
         if response.content_type == defines.Content_types["application/vnd.ocf+cbor"]:
             json_data = cbor.loads(response.payload)
             json_string = json.dumps(json_data, indent=2, sort_keys=True)

@@ -36,3 +36,8 @@ python3 knxcoapclient.py -o DISCOVER -p coap://[FF02::FD]:5683/.well-known/core?
 #python3 knxcoapclient.py -o GET -p coap://[fe80::6513:3050:71a7:5b98]:62414/a?if=if.a -c 50
 #coaps://[fe80::6513:3050:71a7:5b98]:49272
 
+# ource: ('fe80::6513:3050:71a7:5b98', 62940)
+#python3 knxcoapclient.py -o GET -p coap://[fe80::6513:3050:71a7:5b98]:64099/b -c 50
+#python3 knxcoapclient.py -o GET -p coap://[fe80::6513:3050:71a7:5b98]:64099/.well-known/knx -c 40
+#python3 knxcoapclient.py -o GET -p coap://[fe80::6513:3050:71a7:5b98]:62920/dev -c 40
+
