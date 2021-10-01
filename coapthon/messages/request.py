@@ -117,6 +117,7 @@ class Request(Message):
         :param value: the Accept value
         """
         #if value in list(defines.Content_types.values()):
+        print(" accept ", value)
         option = Option()
         option.number = defines.OptionRegistry.ACCEPT.number
         option.value = value

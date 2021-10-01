@@ -191,7 +191,8 @@ class BlockLayer(object):
                 if key_token in self._block2_sent:
                     if self._block2_sent[key_token].content_type != transaction.response.content_type:  # pragma: no cover
                         logger.error("Content-type Error")
-                        return self.error(transaction, defines.Codes.UNSUPPORTED_CONTENT_FORMAT.number)
+                        print ("blocklayer: block2 issue: ",self._block2_sent[key_token].content_type,transaction.response.content_type )
+                        # return self.error(transaction, defines.Codes.UNSUPPORTED_CONTENT_FORMAT.number)
                     transaction.response.payload = self._block2_sent[key_token].payload + transaction.response.payload
                     del self._block2_sent[key_token]
         else:

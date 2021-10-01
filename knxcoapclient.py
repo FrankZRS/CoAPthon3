@@ -216,6 +216,10 @@ def main():  # pragma: no cover
             #json_string = json.dumps(json_data, indent=2, sort_keys=True)
             #print ("JSON ::")
             print (response.payload.decode())
+            print ("\n\n")
+            convertlinkformat2links(response.payload.decode())
+            
+            
         if response.content_type == defines.Content_types["application/vnd.ocf+cbor"]:
             json_data = cbor.loads(response.payload)
             json_string = json.dumps(json_data, indent=2, sort_keys=True)

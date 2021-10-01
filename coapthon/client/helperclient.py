@@ -98,7 +98,8 @@ class HelperClient(object):
         :return: the response
         """
         request = self.mk_request(defines.Codes.GET, path)
-        request.token = generate_random_token(2)
+        # request.token = generate_random_token(2)
+        request.token = generate_random_token(4)
 
         for k, v in kwargs.items():
             
