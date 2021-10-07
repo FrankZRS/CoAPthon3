@@ -3,6 +3,7 @@ import getopt
 import socket
 import sys
 import cbor
+#from cbor2 import dumps, loads
 import json
 import time
 import traceback
@@ -14,6 +15,8 @@ from coapthon import defines
 __author__ = 'Giacomo Tanganelli'
 
 client = None
+paths = {}
+paths_extend = {}
 
 
 def usage():  # pragma: no cover
@@ -29,7 +32,6 @@ def usage():  # pragma: no cover
 def get_url(line):
     data = line.split(">")
     url = data[0]
-    #print(url)
     return url[1:]
 
 def get_ct(line):
@@ -39,39 +41,71 @@ def get_ct(line):
           ct_value_all = tag.split("=")
           ct_value = ct_value_all[1].split(",")
           return ct_value[0]
-    #print(url)
     return ""
 
 def get_base(url):
     # python3 knxcoapclient.py -o GET -p coap://[fe80::6513:3050:71a7:5b98]:63914/a -c 50
     my_url = url.replace("coap://","")
-    # print (my_url)
     mybase = my_url.split("/")
-    # print (mybase)
     return mybase[0]
 
 def convertlinkformat2links(payload):
     print("convertlinkformat2links\n")
+    global paths
+    global paths_extend
     lines = payload.splitlines()
-    for line in lines:
-        #print (line)
-        url = get_url(line)
-        ct = get_ct(line)
-        print ("python3 knxcoapclient.py -o GET -p {} -c {}".format(url,ct))
-    my_base = get_base(get_url(lines[0]))
-    print ("\n")
-    print ("python3 knxcoapclient.py -o GET -p coap://{}/dev -c 40".format(my_base))
-    print ("python3 knxcoapclient.py -o GET -p coap://{}/swu -c 40".format(my_base))
-    print ("python3 knxcoapclient.py -o GET -p coap://{}/.well-known/knx -c 50".format(my_base))
-        
-
+    
+    # add the 
+    if len(paths) == 0:
+        my_base = get_base(get_url(lines[0]))
+        #print ("\n")
+        #print ("python3 knxcoapclient.py -o GET -p coap://{}/dev -c 40".format(my_base))
+        #print ("python3 knxcoapclient.py -o GET -p coap://{}/swu -c 40".format(my_base))
+        #print ("python3 knxcoapclient.py -o GET -p coap://{}/.well-known/knx -c 50".format(my_base))
+        my_str = "coap://"+my_base+"/dev"
+        paths[my_str] = 40
+        my_str = "coap://"+my_base+"/swu"
+        paths[my_str] = 40
+        my_str = "coap://"+my_base+"/.well-known/knx"
+        paths[my_str] = 50
+    
+        for line in lines:
+            url = get_url(line)
+            ct = get_ct(line)
+            #print ("python3 knxcoapclient.py -o GET -p {} -c {}".format(url,ct))
+            try:
+              paths[url] = ct
+            except:
+              paths_extend[url] = ct
+              print ("==>url not added to paths_extend:", url, ct)
+    else:
+       for line in lines:
+            print (line)
+            url = get_url(line)
+            ct = get_ct(line)
+            #print ("python3 knxcoapclient.py -o GET -p {} -c {}".format(url,ct))
+            #print ("setting url")
+            paths_extend[url] = ct
+            print ("==>url added to paths_extend:", url, ct)
+          
 
 def client_callback(response):
     print(" --- Callback ---")
     if response is not None:
         print ("response code:",response.code)
+        print ("response type:",response.content_type)
+        if response.code > 100:
+            print("+++returned error+++")
+            return
         #print(response.pretty_print())
         if response.content_type == defines.Content_types["application/cbor"]:
+            print (type(response.payload), len(response.payload))
+            print ("=========")
+            print (response.payload)
+            print ("=========")
+            #json_data = loads(response.payload)
+            #print(json_data)
+            #print ("=========")
             json_data = cbor.loads(response.payload)
             json_string = json.dumps(json_data, indent=2, sort_keys=True)
             print (json_string)
@@ -93,11 +127,11 @@ def client_callback(response):
             print (response.payload.decode())
             convertlinkformat2links(response.payload.decode())
         else:
-            print ("type, len", type(response.payload), len(response.payload))
-            print (response.payload)
-            
-            
-            
+            if response.payload is not None:
+              print ("type, len", type(response.payload), len(response.payload))
+              print (response.payload)
+            else:
+                print ("    not handled: ", response)
     else:
         print (" Response : None")
     #check = True
@@ -133,6 +167,34 @@ def client_callback_observe(response):  # pragma: no cover
             break
 
 
+def execute_list():
+    global paths
+    global paths_extend
+    for path, ct_value  in paths.items():
+        execute_get(path, ct_value)
+    
+    return
+    print("=======EXTENDED=======")
+    for path, ct_value  in paths_extend.items():
+        execute_get(path, ct_value)
+
+def execute_get(path, ct_value):
+      print ("---------------------------")
+      print ("execute_get: ", ct_value, path)
+      ct = {}
+      ct['accept'] = ct_value
+      host, port, path = parse_uri(path)
+      try:
+        tmp = socket.gethostbyname(host)
+        host = tmp
+      except socket.gaierror:
+        pass
+      nclient = HelperClient(server=(host, port))
+      response = nclient.get(path, None, None, **ct)
+      client_callback(response)
+      nclient.stop()
+
+
 def main():  # pragma: no cover
     global client
     op = None
@@ -142,8 +204,6 @@ def main():  # pragma: no cover
     #ct = {'content_type': defines.Content_types["application/link-format"]}
     ct = {}
     ct['accept'] = 40
-   
-    
     try:
         opts, args = getopt.getopt(sys.argv[1:], "ho:p:P:f:c:", ["help", "operation=", "path=", "payload=",
                                                                "payload_file=","content-type"])
@@ -309,8 +369,8 @@ def main():  # pragma: no cover
         print((response.pretty_print()))
         client.stop()
     elif op == "DISCOVER":
-        response = client.discover( path, client_callback, None, **ct)
-        #response = client.discover( path, None, None, **ct)
+        #response = client.discover( path, client_callback, None, **ct)
+        response = client.discover( path, None, None, **ct)
         if response is not None:
             print(response.pretty_print())
             if response.content_type == defines.Content_types["application/cbor"]:
@@ -324,17 +384,22 @@ def main():  # pragma: no cover
             if response.content_type == defines.Content_types["application/link-format"]:
                 #json_data = cbor.loads(response.payload)
                 #json_string = json.dumps(json_data, indent=2, sort_keys=True)
-                print (response.payload)
+                print (response.payload.decode())
+                # do_get(response.payload.decode(), client)
+                client_callback(response)
         
         counter = 2
         try:
            while counter > 0:
               time.sleep(1)
               counter = counter - 1
-           client.stop()
+           #client.stop()
         except KeyboardInterrupt:
            print("Client Shutdown")
-           client.stop()
+           #client.stop()
+           
+        execute_list()
+        client.stop()
     else:
         print("Operation not recognized")
         usage()
