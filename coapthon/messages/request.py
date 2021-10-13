@@ -330,10 +330,43 @@ class Request(Message):
         print ("request: ocf_content_format_version (setter)",option)
         self.add_option(option)
 
-
     @ocf_content_format_version.deleter
     def ocf_content_format_version(self):
         """
         Delete the ocf_content_format_version option in the request.
         """
         self.del_option_by_number(defines.OptionRegistry.OCF_CONTENT_FORMAT_VERSION.number)
+
+    @property
+    def content_type(self):
+        """
+        Get the content_type option of a request.
+
+        :return: True, if content_type is present
+        :rtype : bool
+        """
+        #print (" content type @property")
+        return True
+        for option in self.options:
+            if option.number == defines.OptionRegistry.CONTENT_TYPE.number:
+                return True
+        return False
+
+    @content_type.setter
+    def content_type(self, value):
+        """
+        Add the content_type option to the request.
+        """
+        option = Option()
+        #print (" setting content_type :", int(value))
+        option.number = defines.OptionRegistry.CONTENT_TYPE.number
+        option.value = int(value)
+        #print ("request: content_type (setter)", option)
+        self.add_option(option)
+
+    @content_type.deleter
+    def content_format(self):
+        """
+        Delete the content_format option in the request.
+        """
+        self.del_option_by_number(defines.OptionRegistry.CONTENT_TYPE.number)

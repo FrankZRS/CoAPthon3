@@ -103,9 +103,9 @@ class HelperClient(object):
 
         for k, v in kwargs.items():
             
-            print ("get", k,v)
+            #print ("get", k,v)
             if hasattr(request, k):
-                print ("get : setting:", k,v)
+                #print ("get : setting:", k,v)
                 setattr(request, k, v)
               
 
@@ -124,9 +124,9 @@ class HelperClient(object):
         #request.token = generate_random_token(2)
 
         for k, v in kwargs.items():
-            print ("get_none", k,v)
+            #print ("get_none", k,v)
             if hasattr(request, k):
-                print ("get_none", k,v)
+                #print ("get_none", k,v)
                 setattr(request, k, v)
 
         return self.send_request(request, callback, timeout)
@@ -185,6 +185,7 @@ class HelperClient(object):
             request.type = defines.Types["NON"]
 
         for k, v in kwargs.items():
+            print ("put : setting:", k,v)
             if hasattr(request, k):
                 setattr(request, k, v)
 
@@ -201,7 +202,7 @@ class HelperClient(object):
         :return: the response
         """
         request = self.mk_request(defines.Codes.PUT, path)
-        request.token = generate_random_token(2)
+        request.token = generate_random_token(4)
         request.payload = payload
 
         if no_response:
@@ -209,7 +210,9 @@ class HelperClient(object):
             request.type = defines.Types["NON"]
 
         for k, v in kwargs.items():
+            #print ("put : trying :", k,v)
             if hasattr(request, k):
+                #print ("put : setting:", k,v)
                 setattr(request, k, v)
 
         return self.send_request(request, callback, timeout, no_response=no_response)
@@ -231,10 +234,10 @@ class HelperClient(object):
         print ("discover : path=", path)
         print ("discover : token=", request.token)
         for k, v in kwargs.items():
-            print ("discover : has:", k,v)
+            #print ("discover : has:", k,v)
             if hasattr(request, k):
                 try:
-                    print ("discover : setting:", k,v)
+                    #print ("discover : setting:", k,v)
                     setattr(request, k, v)
                 except:
                     pass

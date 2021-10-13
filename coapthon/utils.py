@@ -110,7 +110,9 @@ def parse_uri(uri):
     tmp = t[1]
     t = tmp.split("/", 1)
     tmp = t[0]
-    path = t[1]
+    path = ""
+    if (len(t) > 1):
+      path = t[1]
     if tmp.startswith("["):
         t = tmp.split("]")
         host = t[0][1:]

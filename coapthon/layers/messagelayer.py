@@ -194,6 +194,11 @@ class MessageLayer(object):
         key_mid_multicast = str_append_hash(defines.ALL_COAP_NODES, port, message.mid)
         key_token = str_append_hash(host, port, message.token)
         key_token_multicast = str_append_hash(defines.ALL_COAP_NODES, port, message.token)
+        
+        key_token_multicast_ipv6 = str_append_hash(defines.ALL_COAP_NODES_IPV6, 5683, message.token)
+        key_token_multicast_ipv6_link = str_append_hash(defines.ALL_COAP_NODES_IPV6_LINK, 5683, message.token)
+        key_token_multicast_ipv6_site = str_append_hash(defines.ALL_COAP_NODES_IPV6_SITE, 5683, message.token)
+        
         if key_mid in list(self._transactions.keys()):
             transaction = self._transactions[key_mid]
         elif key_token in self._transactions_token:
@@ -202,8 +207,26 @@ class MessageLayer(object):
             transaction = self._transactions[key_mid_multicast]
         elif key_token_multicast in self._transactions_token:
             transaction = self._transactions_token[key_token_multicast]
+        elif key_token_multicast_ipv6 in self._transactions_token:
+            transaction = self._transactions_token[key_token_multicast_ipv6]
+            if message.token != transaction.request.token:
+                logger.warning("Tokens does not match -  message message " + str(host) + ":" + str(port))
+                return None, False
+        elif key_token_multicast_ipv6_link in self._transactions_token:
+            transaction = self._transactions_token[key_token_multicast_ipv6_link]
+            if message.token != transaction.request.token:
+                logger.warning("Tokens does not match -  message message " + str(host) + ":" + str(port))
+                return None, False
+        elif key_token_multicast_ipv6_site in self._transactions_token:
+            transaction = self._transactions_token[key_token_multicast_ipv6_site]
+            if message.token != transaction.request.token:
+                logger.warning("Tokens does not match -  message message " + str(host) + ":" + str(port))
+                return None, False
         else:
             logger.warning("Un-Matched incoming empty message " + str(host) + ":" + str(port))
+            print (" receive_response mid:", message.mid)
+            print (" receive_response token:", message.token)
+            #print (" receive_response source:", message.source)
             return None
 
         if message.type == defines.Types["ACK"]:

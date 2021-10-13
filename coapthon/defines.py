@@ -138,7 +138,7 @@ class OptionRegistry(object):
     PROXY_SCHEME =  OptionItem(39, "Proxy-Schema",  STRING,  False, None)
     SIZE1 =         OptionItem(60, "Size1",         INTEGER, False, None)
     NO_RESPONSE =   OptionItem(258, "No-Response",  INTEGER, False, None)
-    OCF_ACCEPT_CONTENT_FORMAT_VERSION =   OptionItem(2049, "OCF-Accept-Content-Format-Version",  INTEGER, False, None)
+    OCF_ACCEPT_CONTENT_FORMAT_VERSION =   OptionItem(2049, "OCF-Accept-Content-Format-Version", INTEGER, False, None)
     OCF_CONTENT_FORMAT_VERSION =   OptionItem(2053, "OCF-Content-Format-Version",  INTEGER, False, None)
     RM_MESSAGE_SWITCHING = OptionItem(65524, "Routing", OPAQUE, False, None)
 

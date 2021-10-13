@@ -1,11 +1,22 @@
 #!/bin/bash
 set -x #echo on
 
+#  CBOR = 60
+# JSON = 50
+# LF = 40
+
+
+
 # rt filtering
 python3 knxcoapclient.py -o DISCOVER -p coap://[FF02::FD]:5683/.well-known/core?rt=urn:knx:dpa.* -c 40
 python3 knxcoapclient.py -o DISCOVER -p coap://[FF02::FD]:5683/.well-known/core?rt=urn:knx:dpa.353* -c 40
 python3 knxcoapclient.py -o DISCOVER -p coap://[FF02::FD]:5683/.well-known/core?rt=urn:knx:dpa.352* -c 40
 
+# ia filtering
+# next one should not return... so don't run this one in the script
+# python3 knxcoapclient.py -o DISCOVER -p coap://[FF02::FD]:5683/.well-known/core?if=urn:knx:ia.0 -c 50
+
+python3 knxcoapclient.py -o DISCOVER -p coap://[FF02::FD]:5683/.well-known/core?if=urn:knx:ia.5 -c 50
 
 # interface filtering
 # urn:knx:pm

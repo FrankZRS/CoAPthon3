@@ -62,12 +62,16 @@ def convertlinkformat2links(payload):
         #print ("python3 knxcoapclient.py -o GET -p coap://{}/dev -c 40".format(my_base))
         #print ("python3 knxcoapclient.py -o GET -p coap://{}/swu -c 40".format(my_base))
         #print ("python3 knxcoapclient.py -o GET -p coap://{}/.well-known/knx -c 50".format(my_base))
+        my_str = "coap://"+my_base+"/dev/iid"
+        my_str = "coap://"+my_base+"/dev/ia"
+        paths[my_str] = 60
+        
         my_str = "coap://"+my_base+"/dev"
         paths[my_str] = 40
         my_str = "coap://"+my_base+"/swu"
-        paths[my_str] = 40
+        #paths[my_str] = 40
         my_str = "coap://"+my_base+"/.well-known/knx"
-        paths[my_str] = 50
+        #paths[my_str] = 50
     
         for line in lines:
             url = get_url(line)
@@ -89,7 +93,7 @@ def convertlinkformat2links(payload):
             print ("==>url added to paths_extend:", url, ct)
           
 
-def client_callback(response):
+def client_callback(response, checkdata=None):
     print(" --- Callback ---")
     if response is not None:
         print ("response code:",response.code)
@@ -108,6 +112,16 @@ def client_callback(response):
             #print ("=========")
             json_data = cbor.loads(response.payload)
             json_string = json.dumps(json_data, indent=2, sort_keys=True)
+            print (json_string)
+            if checkdata is not None:
+               check_data = cbor.loads(checkdata)
+               check_string = json.dumps(check_data, indent=2, sort_keys=True)
+               print (check_string)
+               if check_string == json_string:
+                  print("  =+++===> OK  ")
+               else:
+                  print("  =+++===> NOT OK  ")
+            
             print (json_string)
         elif response.content_type == defines.Content_types["application/vnd.ocf+cbor"]:
             print ("application/vnd.ocf+cbor")
@@ -172,18 +186,24 @@ def execute_list():
     global paths_extend
     for path, ct_value  in paths.items():
         execute_get(path, ct_value)
+        execute_put(path, ct_value)
     
-    return
+    #return
     print("=======EXTENDED=======")
     for path, ct_value  in paths_extend.items():
         execute_get(path, ct_value)
+        execute_put(path, ct_value)
 
-def execute_get(path, ct_value):
+def execute_get(mypath, ct_value):
       print ("---------------------------")
-      print ("execute_get: ", ct_value, path)
+      print ("execute_get: ", ct_value, mypath)
+      print (type(mypath))
+      
+      if (mypath is None or len(mypath) < 5):
+        return
       ct = {}
       ct['accept'] = ct_value
-      host, port, path = parse_uri(path)
+      host, port, path = parse_uri(mypath)
       try:
         tmp = socket.gethostbyname(host)
         host = tmp
@@ -193,6 +213,77 @@ def execute_get(path, ct_value):
       response = nclient.get(path, None, None, **ct)
       client_callback(response)
       nclient.stop()
+
+
+
+def execute_put(mypath, ct_value):
+      #print ("---------------------------")
+      print ("execute_put: ", ct_value, mypath)
+      ct = {}
+      ct['accept'] = ct_value
+      ct['content_type'] = ct_value
+      host, port, path = parse_uri(mypath)
+      try:
+        tmp = socket.gethostbyname(host)
+        host = tmp
+      except socket.gaierror:
+        pass
+      nclient = HelperClient(server=(host, port))
+      nclientcheck = HelperClient(server=(host, port))
+      payload = 0
+      do_put = False
+      if path.__contains__("dev/ia"):
+        do_put = True
+        contents = 5 # string
+        payload = cbor.dumps(contents)
+        print ("---------------------------")
+        print ("  execute_put   ", path, contents, payload)
+        contents_i = cbor.loads(payload)
+        print ("  ", contents)
+        print ("  ", contents_i)
+        print ("---------------------------")
+      if path.__contains__("dev/iid"):
+        do_put = True
+        contents = "25345" # string
+        payload = cbor.dumps(contents)
+        print ("---------------------------")
+        print ("  execute_put   ", path, contents, payload)
+        contents_i = cbor.loads(payload)
+        print ("  ", contents)
+        print ("  ", contents_i)
+        print ("---------------------------")
+      if path.__contains__("dev/name"):
+        do_put = True
+        contents = "new name" # string
+        payload = cbor.dumps(contents)
+        print ("---------------------------")
+        print ("  execute_put   ", path, contents, payload)
+        contents_i = cbor.loads(payload)
+        print ("  ", contents)
+        print ("  ", contents_i)
+        print ("---------------------------")
+      if path.__contains__("dev/pm"):
+        do_put = True
+        contents = True # string
+        payload = cbor.dumps(contents)
+        print ("---------------------------")
+        print ("  execute_put   ", path, contents, payload)
+        contents_i = cbor.loads(payload)
+        print ("  ", contents)
+        print ("  ", contents_i)
+        print ("---------------------------")
+      
+      if do_put:
+        response = nclient.put(path, payload, None, None , None, **ct)
+        client_callback(response)
+        nclient.stop()
+        #sys.exit(2)
+        print ("=======")
+        response_check = nclientcheck.get(path, None, None, **ct)
+        client_callback(response_check, payload)
+        nclientcheck.stop()
+        print ("=======")
+        
 
 
 def main():  # pragma: no cover

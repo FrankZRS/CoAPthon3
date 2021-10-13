@@ -192,6 +192,7 @@ class Serializer(object):
         lastoptionnumber = 0
         for option in options:
 
+            #print ("serialize : option.number", option.number, option.value)
             # write 4-bit option delta
             optiondelta = option.number - lastoptionnumber
             optiondeltanibble = Serializer.get_option_nibble(optiondelta)
