@@ -64,15 +64,27 @@ def convertlinkformat2links(payload):
         #print ("python3 knxcoapclient.py -o GET -p coap://{}/.well-known/knx -c 50".format(my_base))
         my_str = "coap://"+my_base+"/dev/iid"
         my_str = "coap://"+my_base+"/dev/ia"
-        paths[my_str] = 60
+        #paths[my_str] = 60
         
         my_str = "coap://"+my_base+"/dev"
-        paths[my_str] = 40
+        #paths[my_str] = 40
         my_str = "coap://"+my_base+"/swu"
         #paths[my_str] = 40
         my_str = "coap://"+my_base+"/.well-known/knx"
         #paths[my_str] = 50
+        
+        my_str = "coap://"+my_base+"/fp/gm"
+        paths[my_str] = 40
+        my_str = "coap://"+my_base+"/fp/gm/1"
+        paths[my_str] = 60
+        
+        my_str = "coap://"+my_base+"/fp/g"
+        paths[my_str] = 40
+        my_str = "coap://"+my_base+"/fp/g/1"
+        paths[my_str] = 60
     
+        return
+        
         for line in lines:
             url = get_url(line)
             ct = get_ct(line)
@@ -113,9 +125,11 @@ def client_callback(response, checkdata=None):
             json_data = cbor.loads(response.payload)
             json_string = json.dumps(json_data, indent=2, sort_keys=True)
             print (json_string)
+            print ("===+++===")
             if checkdata is not None:
                check_data = cbor.loads(checkdata)
                check_string = json.dumps(check_data, indent=2, sort_keys=True)
+               print("  check: ")
                print (check_string)
                if check_string == json_string:
                   print("  =+++===> OK  ")
@@ -187,12 +201,16 @@ def execute_list():
     for path, ct_value  in paths.items():
         execute_get(path, ct_value)
         execute_put(path, ct_value)
+        execute_post(path, ct_value)
+        execute_del(path, ct_value)
     
     #return
     print("=======EXTENDED=======")
     for path, ct_value  in paths_extend.items():
         execute_get(path, ct_value)
         execute_put(path, ct_value)
+        execute_post(path, ct_value)
+        execute_del(path, ct_value)
 
 def execute_get(mypath, ct_value):
       print ("---------------------------")
@@ -214,11 +232,96 @@ def execute_get(mypath, ct_value):
       client_callback(response)
       nclient.stop()
 
+def execute_del(mypath, ct_value):
+      #print ("---------------------------")
+      #print ("execute_del: ", ct_value, mypath)
+      do_exit = False
+      ct = {}
+      ct['accept'] = ct_value
+      ct['content_type'] = ct_value
+      host, port, path = parse_uri(mypath)
+      try:
+        tmp = socket.gethostbyname(host)
+        host = tmp
+      except socket.gaierror:
+        pass
+      nclient = HelperClient(server=(host, port))
+      nclientcheck = HelperClient(server=(host, port))
+      payload = 0
+      do_del = False
+      if path.__contains__("fp/gm/1"):
+        do_del = True
+        contents = 5 # string
+        payload = cbor.dumps(contents)
+        print ("---------------------------")
+        print ("  execute_del   ", path, contents, payload)
+        
+      if path.__contains__("fp/g/1"):
+        do_del = True
+        contents = 5 # string
+        payload = cbor.dumps(contents)
+        print ("---------------------------")
+        print ("  execute_del   ", path, contents, payload)
 
+      if do_del:
+        response = nclient.delete(path, None, None, **ct)
+        client_callback(response)
+        #nclient.stop()
+        #sys.exit(2)
+        print ("=======")
+        
+        if do_exit:
+          sys.exit(2)
+
+
+def execute_post(mypath, ct_value):
+      #print ("---------------------------")
+      #print ("execute_post: ", ct_value, mypath)
+      do_exit = False
+      ct = {}
+      ct['accept'] = ct_value
+      ct['content_type'] = ct_value
+      host, port, path = parse_uri(mypath)
+      try:
+        tmp = socket.gethostbyname(host)
+        host = tmp
+      except socket.gaierror:
+        pass
+      nclient = HelperClient(server=(host, port))
+      nclientcheck = HelperClient(server=(host, port))
+      payload = 0
+      do_post = False
+      if path == "fp/g":
+        do_post = True
+        # do_exit = True
+        contents = [ {"id": 1, "href": "xxxx", "cflag": [1,2,3,4,5], "ga":[2222,3333]} ]
+        payload = cbor.dumps(contents)
+        ct['content_type'] = 60
+        ct['accept'] = 60
+        print ("---------------------------")
+        print ("  execute_post   ", path, contents, payload)
+        contents_i = cbor.loads(payload)
+        print ("  ", contents)
+        print ("  ", contents_i)
+        print ("---------------------------")
+      if do_post:
+        response = nclient.post(path, payload, None, None , None, **ct)
+        client_callback(response)
+        nclient.stop()
+        #sys.exit(2)
+        #print ("=======")
+        #response_check = nclientcheck.get(path, None, None, **ct)
+        #client_callback(response_check, payload)
+        #nclientcheck.stop()
+        #print ("=======")
+        
+        if do_exit:
+          sys.exit(2)
 
 def execute_put(mypath, ct_value):
       #print ("---------------------------")
-      print ("execute_put: ", ct_value, mypath)
+      #print ("execute_put: ", ct_value, mypath)
+      do_exit = False
       ct = {}
       ct['accept'] = ct_value
       ct['content_type'] = ct_value
@@ -252,9 +355,9 @@ def execute_put(mypath, ct_value):
         print ("  ", contents)
         print ("  ", contents_i)
         print ("---------------------------")
-      if path.__contains__("dev/name"):
+      if path.__contains__("dev/hostname"):
         do_put = True
-        contents = "new name" # string
+        contents = "new host name" # string
         payload = cbor.dumps(contents)
         print ("---------------------------")
         print ("  execute_put   ", path, contents, payload)
@@ -262,6 +365,7 @@ def execute_put(mypath, ct_value):
         print ("  ", contents)
         print ("  ", contents_i)
         print ("---------------------------")
+        # do_exit = True
       if path.__contains__("dev/pm"):
         do_put = True
         contents = True # string
@@ -272,7 +376,7 @@ def execute_put(mypath, ct_value):
         print ("  ", contents)
         print ("  ", contents_i)
         print ("---------------------------")
-      
+        do_exit = True
       if do_put:
         response = nclient.put(path, payload, None, None , None, **ct)
         client_callback(response)
@@ -283,6 +387,9 @@ def execute_put(mypath, ct_value):
         client_callback(response_check, payload)
         nclientcheck.stop()
         print ("=======")
+        
+        if do_exit:
+          sys.exit(2)
         
 
 
