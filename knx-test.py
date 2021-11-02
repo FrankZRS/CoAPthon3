@@ -62,6 +62,8 @@ def get_base_from_link(payload):
         return my_base
         
 
+
+# no json tags as strings
 def do_sequence_dev(my_base):
 
     print("===================")
@@ -115,6 +117,27 @@ def do_sequence_dev(my_base):
 
 
 
+# id ==> 0
+# href ==> 11
+# ga ==> 7
+# cflag ==> 8
+def do_sequence_fp_g_int(my_base):
+
+    #  url, content, accept, contents
+    content = [ {0: 1, 11: "xxxx1", 8: [1,2,3,4,5], 7:[2222,3333]} ] 
+    execute_post("coap://"+my_base+"/fp/g", 60, 60, content)
+    execute_get("coap://"+my_base+"/fp/g/1", 60)
+    execute_get("coap://"+my_base+"/fp/g", 40)
+    content = [ {0: 2, 11: "xxxxyyy2", 8: [1,4,5], 7:[44,55,33]}, {0: 3, 1: "xxxxyyy3", 8: [1,4,5], 7:[44,55,33]} ] 
+    execute_post("coap://"+my_base+"/fp/g", 60, 60, content)
+    execute_get("coap://"+my_base+"/fp/g/2", 60)
+    execute_get("coap://"+my_base+"/fp/g/3", 60)
+    execute_get("coap://"+my_base+"/fp/g", 40)
+    
+    execute_del("coap://"+my_base+"/fp/g/3", 60)
+    execute_get("coap://"+my_base+"/fp/g/3", 60)
+    execute_get("coap://"+my_base+"/fp/g", 40)
+
 def do_sequence_fp_g(my_base):
 
     #  url, content, accept, contents
@@ -133,6 +156,29 @@ def do_sequence_fp_g(my_base):
     execute_get("coap://"+my_base+"/fp/g", 40)
     
         
+# id ==> 0
+# ia ==> 12
+# path ==> 112
+# url ==> 10
+# ga ==> 7
+def do_sequence_fp_p_int(my_base):
+
+    #  url, content, accept, contents
+    content = [ {0: 1, 12: "Ia.IA1", 112: "path1", 7:[2222,3333]} ] 
+    execute_post("coap://"+my_base+"/fp/p", 60, 60, content)
+    execute_get("coap://"+my_base+"/fp/p/1", 60)
+    # 40 == application-link format
+    execute_get("coap://"+my_base+"/fp/p", 40)
+    content = [ {0: 2, 12: "xxxxyyyia2", 112: "path2", 7:[44,55,33]}, 
+                {0: 3, 12: "xxxxyyyia3", 112: "path3", 7:[44,55,33]} ] 
+    execute_post("coap://"+my_base+"/fp/p", 60, 60, content)
+    execute_get("coap://"+my_base+"/fp/p/2", 60)
+    execute_get("coap://"+my_base+"/fp/p/3", 60)
+    execute_get("coap://"+my_base+"/fp/p", 40)
+    
+    execute_del("coap://"+my_base+"/fp/p/3", 60)
+    execute_get("coap://"+my_base+"/fp/p/3", 60)
+    execute_get("coap://"+my_base+"/fp/p", 40)
 
 def do_sequence_fp_p(my_base):
 
@@ -153,6 +199,30 @@ def do_sequence_fp_p(my_base):
     execute_get("coap://"+my_base+"/fp/p", 40)
 
 
+
+# id ==> 0
+# ia ==> 12
+# path ==> 112
+# url ==> 10
+# ga ==> 7
+def do_sequence_fp_r_int(my_base):
+
+    #  url, content, accept, contents
+    content = [ { 0: 1, 12: "r-Ia.IA1", 112: "r-path1", 7:[2222,3333]}  ] 
+    execute_post("coap://"+my_base+"/fp/r", 60, 60, content)
+    execute_get("coap://"+my_base+"/fp/r/1", 60)
+    execute_get("coap://"+my_base+"/fp/r", 40)
+    content = [ { 0: 2, 12: "r-Ia.IA2", 10: "url2", 112: "r-path2", 7:[44,55,33]}, 
+                {0: 3, 12: "r-Ia.IA3", 112: "r-path3", 7:[44,55,33]} ] 
+    execute_post("coap://"+my_base+"/fp/r", 60, 60, content)
+    execute_get("coap://"+my_base+"/fp/r/2", 60)
+    execute_get("coap://"+my_base+"/fp/r/3", 60)
+    execute_get("coap://"+my_base+"/fp/r", 40)
+    
+    execute_del("coap://"+my_base+"/fp/r/3", 60)
+    execute_get("coap://"+my_base+"/fp/r/3", 60)
+    execute_get("coap://"+my_base+"/fp/r", 40)
+
 def do_sequence_fp_r(my_base):
 
     #  url, content, accept, contents
@@ -170,6 +240,25 @@ def do_sequence_fp_r(my_base):
     execute_get("coap://"+my_base+"/fp/r/3", 60)
     execute_get("coap://"+my_base+"/fp/r", 40)
 
+
+# cmd ==> 2
+def do_sequence_lsm_int(my_base):
+
+    #  url, content, accept, contents
+
+    execute_get("coap://"+my_base+"/a/lsm", 60)
+    
+    content = {2 : "startLoading"}
+    execute_post("coap://"+my_base+"/a/lsm", 60, 60, content)
+    execute_get("coap://"+my_base+"/a/lsm", 60)
+    
+    content = {2 : "loadComplete"}
+    execute_post("coap://"+my_base+"/a/lsm", 60, 60, content)
+    execute_get("coap://"+my_base+"/a/lsm", 60)
+    
+    content = {2 : "unload"}
+    execute_post("coap://"+my_base+"/a/lsm", 60, 60, content)
+    execute_get("coap://"+my_base+"/a/lsm", 60)
 
 def do_sequence_lsm(my_base):
 
@@ -189,6 +278,19 @@ def do_sequence_lsm(my_base):
     execute_post("coap://"+my_base+"/a/lsm", 60, 60, content)
     execute_get("coap://"+my_base+"/a/lsm", 60)
 
+
+# ./knx resource
+# sia ==> 4
+# ga ==> 7
+# st 6 
+def do_sequence_knx_knx_int(my_base):
+
+    #  url, content, accept, contents
+    execute_get("coap://"+my_base+"/.knx", 60)
+    content = {"value": { 4 : 5, 7: 7777 , 6 : "rp"}}
+    execute_post("coap://"+my_base+"/.knx", 60, 60, content)
+    execute_get("coap://"+my_base+"/.knx", 60)
+
 # ./knx resource
 def do_sequence_knx_knx(my_base):
 
@@ -198,16 +300,25 @@ def do_sequence_knx_knx(my_base):
     execute_post("coap://"+my_base+"/.knx", 60, 60, content)
     execute_get("coap://"+my_base+"/.knx", 60)
 
-
-
 def do_sequence(my_base):
 
-    #do_sequence_dev(my_base)
+    do_sequence_dev(my_base)
+    
+    do_sequence_fp_g_int(my_base)
     #do_sequence_fp_g(my_base)
+    
+    do_sequence_fp_p_int(my_base)
     #do_sequence_fp_p(my_base)
+    
+    do_sequence_fp_r_int(my_base)
     #do_sequence_fp_r(my_base)
+    
+    do_sequence_lsm_int(my_base)
     #do_sequence_lsm(my_base)
-    do_sequence_knx_knx(my_base)
+    do_sequence_lsm_int(my_base)
+    # .knx
+    do_sequence_knx_knx_int(my_base)
+    #do_sequence_knx_knx(my_base)
         
 
 def client_callback_discovery(response, checkdata=None):
