@@ -171,12 +171,43 @@ def do_sequence_fp_r(my_base):
     execute_get("coap://"+my_base+"/fp/r", 40)
 
 
+def do_sequence_lsm(my_base):
+
+    #  url, content, accept, contents
+
+    execute_get("coap://"+my_base+"/a/lsm", 60)
+    
+    content = {"cmd": "startLoading"}
+    execute_post("coap://"+my_base+"/a/lsm", 60, 60, content)
+    execute_get("coap://"+my_base+"/a/lsm", 60)
+    
+    content = {"cmd": "loadComplete"}
+    execute_post("coap://"+my_base+"/a/lsm", 60, 60, content)
+    execute_get("coap://"+my_base+"/a/lsm", 60)
+    
+    content = {"cmd": "unload"}
+    execute_post("coap://"+my_base+"/a/lsm", 60, 60, content)
+    execute_get("coap://"+my_base+"/a/lsm", 60)
+
+# ./knx resource
+def do_sequence_knx_knx(my_base):
+
+    #  url, content, accept, contents
+    execute_get("coap://"+my_base+"/.knx", 60)
+    content = {"value": { "sia" : 5, "ga": 7, "st": "rp"}}
+    execute_post("coap://"+my_base+"/.knx", 60, 60, content)
+    execute_get("coap://"+my_base+"/.knx", 60)
+
+
+
 def do_sequence(my_base):
 
     #do_sequence_dev(my_base)
     #do_sequence_fp_g(my_base)
     #do_sequence_fp_p(my_base)
-    do_sequence_fp_r(my_base)
+    #do_sequence_fp_r(my_base)
+    #do_sequence_lsm(my_base)
+    do_sequence_knx_knx(my_base)
         
 
 def client_callback_discovery(response, checkdata=None):

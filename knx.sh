@@ -6,6 +6,8 @@ set -x #echo on
 # LF = 40
 
 
+# rt filtering
+python3 knx-test.py -o DISCOVER -p coap://[FF02::FD]:5683/.well-known/core?rt=urn:knx:dpa.* -c 40
 
 # rt filtering
 python3 knxcoapclient.py -o DISCOVER -p coap://[FF02::FD]:5683/.well-known/core?rt=urn:knx:dpa.* -c 40
