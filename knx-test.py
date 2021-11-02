@@ -12,11 +12,11 @@ from coapthon.client.helperclient import HelperClient
 from coapthon.utils import parse_uri
 from coapthon import defines
 
-__author__ = 'Giacomo Tanganelli'
-
 client = None
 paths = {}
 paths_extend = {}
+
+my_base = ""
 
 
 def usage():  # pragma: no cover
@@ -49,8 +49,9 @@ def get_base(url):
     mybase = my_url.split("/")
     return mybase[0]
 
-def convertlinkformat2links(payload):
-    print("convertlinkformat2links\n")
+
+def get_base_from_link(payload):
+    print("get_base_from_link\n")
     global paths
     global paths_extend
     lines = payload.splitlines()
@@ -58,76 +59,173 @@ def convertlinkformat2links(payload):
     # add the 
     if len(paths) == 0:
         my_base = get_base(get_url(lines[0]))
-        #print ("\n")
-        #print ("python3 knxcoapclient.py -o GET -p coap://{}/dev -c 40".format(my_base))
-        #print ("python3 knxcoapclient.py -o GET -p coap://{}/swu -c 40".format(my_base))
-        #print ("python3 knxcoapclient.py -o GET -p coap://{}/.well-known/knx -c 50".format(my_base))
-        my_str = "coap://"+my_base+"/dev/iid"
-        my_str = "coap://"+my_base+"/dev/ia"
-        #paths[my_str] = 60
+        return my_base
         
-        my_str = "coap://"+my_base+"/dev"
-        #paths[my_str] = 40
-        my_str = "coap://"+my_base+"/swu"
-        #paths[my_str] = 40
-        my_str = "coap://"+my_base+"/.well-known/knx"
-        #paths[my_str] = 50
-        
-        my_str = "coap://"+my_base+"/fp/gm"
-        paths[my_str] = 40
-        my_str = "coap://"+my_base+"/fp/gm/1"
-        paths[my_str] = 60
-        
-        my_str = "coap://"+my_base+"/fp/g"
-        paths[my_str] = 40
-        my_str = "coap://"+my_base+"/fp/g/1"
-        paths[my_str] = 60
-        
-        
-        my_str = "coap://"+my_base+"/fp/r"
-        paths[my_str] = 40
-        my_str = "coap://"+my_base+"/fp/r/1"
-        paths[my_str] = 60
-    
-    
-        my_str = "coap://"+my_base+"/fp/p"
-        paths[my_str] = 40
-        my_str = "coap://"+my_base+"/fp/p/1"
-        paths[my_str] = 60
-    
-    
-        # return
-        
-        for line in lines:
-            url = get_url(line)
-            ct = get_ct(line)
-            #print ("python3 knxcoapclient.py -o GET -p {} -c {}".format(url,ct))
-            try:
-              paths[url] = ct
-            except:
-              paths_extend[url] = ct
-              print ("==>url not added to paths_extend:", url, ct)
-    else:
-       for line in lines:
-            print (line)
-            url = get_url(line)
-            ct = get_ct(line)
-            #print ("python3 knxcoapclient.py -o GET -p {} -c {}".format(url,ct))
-            #print ("setting url")
-            paths_extend[url] = ct
-            print ("==>url added to paths_extend:", url, ct)
-          
 
-def client_callback(response, checkdata=None):
-    print(" --- Callback ---")
+def do_sequence_dev(my_base):
+
+    print("===================")
+    print("Get SN :");
+    execute_get("coap://"+my_base+"/dev/sn", 60)
+
+    print("===================")
+    print("Get HWT :");
+    execute_get("coap://"+my_base+"/dev/hwt", 60)
+    
+    print("===================")
+    print("Get HWV :");
+    execute_get("coap://"+my_base+"/dev/hwv", 60)
+
+    print("===================")
+    print("Get FWV :");
+    execute_get("coap://"+my_base+"/dev/fwv", 60)
+
+    print("===================")
+    print("Get Model :");
+    execute_get("coap://"+my_base+"/dev/model", 60)
+
+    print("===================")
+    content = True
+    print("set PM :", content);
+    execute_put("coap://"+my_base+"/dev/pm", 60, 60, content)
+    execute_get("coap://"+my_base+"/dev/pm", 60)
+    content = False
+    print("set PM :", content);
+    execute_put("coap://"+my_base+"/dev/pm", 60, 60, content)
+    execute_get("coap://"+my_base+"/dev/pm", 60)
+    
+    print("===================")
+    content = 44
+    print("set IA :", content);
+    execute_put("coap://"+my_base+"/dev/ia", 60, 60, content)
+    execute_get("coap://"+my_base+"/dev/ia", 60)
+    
+    print("===================")
+    content = "my host name"
+    print("set hostname :", content);
+    execute_put("coap://"+my_base+"/dev/hostname", 60, 60, content)
+    execute_get("coap://"+my_base+"/dev/hostname", 60)
+    
+    
+    print("===================")
+    content = " iid xxx"
+    print("set iid :", content);
+    execute_put("coap://"+my_base+"/dev/iid", 60, 60, content)
+    execute_get("coap://"+my_base+"/dev/iid", 60)
+
+
+
+def do_sequence_fp_g(my_base):
+
+    #  url, content, accept, contents
+    content = [ {"id": 1, "href": "xxxx1", "cflag": [1,2,3,4,5], "ga":[2222,3333]} ] 
+    execute_post("coap://"+my_base+"/fp/g", 60, 60, content)
+    execute_get("coap://"+my_base+"/fp/g/1", 60)
+    execute_get("coap://"+my_base+"/fp/g", 40)
+    content = [ {"id": 2, "href": "xxxxyyy2", "cflag": [1,4,5], "ga":[44,55,33]}, {"id": 3, "href": "xxxxyyy3", "cflag": [1,4,5], "ga":[44,55,33]} ] 
+    execute_post("coap://"+my_base+"/fp/g", 60, 60, content)
+    execute_get("coap://"+my_base+"/fp/g/2", 60)
+    execute_get("coap://"+my_base+"/fp/g/3", 60)
+    execute_get("coap://"+my_base+"/fp/g", 40)
+    
+    execute_del("coap://"+my_base+"/fp/g/3", 60)
+    execute_get("coap://"+my_base+"/fp/g/3", 60)
+    execute_get("coap://"+my_base+"/fp/g", 40)
+    
+        
+
+def do_sequence_fp_p(my_base):
+
+    #  url, content, accept, contents
+    content = [ {"id": 1, "ia": "Ia.IA1", "path": "path1", "ga":[2222,3333]} ] 
+    execute_post("coap://"+my_base+"/fp/p", 60, 60, content)
+    execute_get("coap://"+my_base+"/fp/p/1", 60)
+    # 40 == application-link format
+    execute_get("coap://"+my_base+"/fp/p", 40)
+    content = [ {"id": 2, "ia": "xxxxyyyia2", "path": "path2","ga":[44,55,33]}, {"id": 3, "ia": "xxxxyyyia3", "path": "path3","ga":[44,55,33]} ] 
+    execute_post("coap://"+my_base+"/fp/p", 60, 60, content)
+    execute_get("coap://"+my_base+"/fp/p/2", 60)
+    execute_get("coap://"+my_base+"/fp/p/3", 60)
+    execute_get("coap://"+my_base+"/fp/p", 40)
+    
+    execute_del("coap://"+my_base+"/fp/p/3", 60)
+    execute_get("coap://"+my_base+"/fp/p/3", 60)
+    execute_get("coap://"+my_base+"/fp/p", 40)
+
+
+def do_sequence_fp_r(my_base):
+
+    #  url, content, accept, contents
+    content = [ {"id": 1, "ia": "r-Ia.IA1", "path": "r-path1", "ga":[2222,3333]}  ] 
+    execute_post("coap://"+my_base+"/fp/r", 60, 60, content)
+    execute_get("coap://"+my_base+"/fp/r/1", 60)
+    execute_get("coap://"+my_base+"/fp/r", 40)
+    content = [ {"id": 2, "ia": "r-Ia.IA2", "path": "r-path2", "ga":[44,55,33]}, {"id": 3, "ia": "r-Ia.IA3", "path": "r-path3", "ga":[44,55,33]} ] 
+    execute_post("coap://"+my_base+"/fp/r", 60, 60, content)
+    execute_get("coap://"+my_base+"/fp/r/2", 60)
+    execute_get("coap://"+my_base+"/fp/r/3", 60)
+    execute_get("coap://"+my_base+"/fp/r", 40)
+    
+    execute_del("coap://"+my_base+"/fp/r/3", 60)
+    execute_get("coap://"+my_base+"/fp/r/3", 60)
+    execute_get("coap://"+my_base+"/fp/r", 40)
+
+
+def do_sequence(my_base):
+
+    #do_sequence_dev(my_base)
+    #do_sequence_fp_g(my_base)
+    #do_sequence_fp_p(my_base)
+    do_sequence_fp_r(my_base)
+        
+
+def client_callback_discovery(response, checkdata=None):
+    print(" --- Discovery Callback ---")
+    global my_base
     if response is not None:
         print ("response code:",response.code)
         print ("response type:",response.content_type)
         if response.code > 100:
             print("+++returned error+++")
             return
+        if response.content_type == defines.Content_types["application/link-format"]:
+            print (response.payload.decode())
+            my_base = get_base_from_link(response.payload.decode())
+            do_sequence(my_base)
+
+def code2string(code):
+   if code == 68:
+      return "(Changed)"
+   if code == 69:
+      return "(Content)"
+   if code == 132:
+      return "(Not Found)"
+   if code == 133:
+      return "(METHOD_NOT_ALLOWED)"
+   if code == 160:
+      return "(INTERNAL_SERVER_ERROR)"
+   
+   return ""
+
+
+def client_callback(response, checkdata=None):
+    print(" --- Callback ---")
+    if response is not None:
+        print ("response code:",response.code, code2string(response.code))
+        print ("response type:",response.content_type)
+        if response.code > 100:
+            print("+++returned error+++")
+            return
         #print(response.pretty_print())
-        if response.content_type == defines.Content_types["application/cbor"]:
+        if response.content_type == defines.Content_types["text/plain"]:
+            if response.payload is not None:
+              print (type(response.payload), len(response.payload))
+              print ("=========")
+              print (response.payload)
+              print ("=========")
+            else: 
+                print ("payload: none")
+        elif response.content_type == defines.Content_types["application/cbor"]:
             print (type(response.payload), len(response.payload))
             print ("=========")
             print (response.payload)
@@ -166,13 +264,12 @@ def client_callback(response, checkdata=None):
             print (json_string)
         elif response.content_type == defines.Content_types["application/link-format"]:
             print (response.payload.decode())
-            convertlinkformat2links(response.payload.decode())
         else:
             if response.payload is not None:
               print ("type, len", type(response.payload), len(response.payload))
               print (response.payload)
-            else:
-                print ("    not handled: ", response)
+            #else:
+            #    print ("    not handled: ", response)
     else:
         print (" Response : None")
     #check = True
@@ -208,23 +305,6 @@ def client_callback_observe(response):  # pragma: no cover
             break
 
 
-def execute_list():
-    global paths
-    global paths_extend
-    for path, ct_value  in paths.items():
-        execute_get(path, ct_value)
-        execute_put(path, ct_value)
-        execute_post(path, ct_value)
-        execute_del(path, ct_value)
-    
-    #return
-    print("=======EXTENDED=======")
-    for path, ct_value  in paths_extend.items():
-        execute_get(path, ct_value)
-        execute_put(path, ct_value)
-        execute_post(path, ct_value)
-        execute_del(path, ct_value)
-
 def execute_get(mypath, ct_value):
       print ("---------------------------")
       print ("execute_get: ", ct_value, mypath)
@@ -250,15 +330,15 @@ def execute_get(mypath, ct_value):
       nclient.stop()
 
 def execute_del(mypath, ct_value):
-      #print ("---------------------------")
-      #print ("execute_del: ", ct_value, mypath)
+      print ("---------------------------")
+      print ("execute_del: ", ct_value, mypath)
       do_exit = False
       ct = {}
       ct['accept'] = ct_value
       ct['content_type'] = ct_value
       
       if mypath.startswith("coap://") == False:
-        #print(" not executing: ", mypath);
+        print(" not executing: ", mypath);
         return;
       
       host, port, path = parse_uri(mypath)
@@ -270,38 +350,21 @@ def execute_del(mypath, ct_value):
       nclient = HelperClient(server=(host, port))
       nclientcheck = HelperClient(server=(host, port))
       payload = 0
-      do_del = False
-      if path.__contains__("fp/gm/1"):
-        do_del = True
-        contents = 5 # string
-        payload = cbor.dumps(contents)
-        print ("---------------------------")
-        print ("  execute_del   ", path, contents, payload)
-        
-      if path.__contains__("fp/g/1"):
-        do_del = True
-        contents = 5 # string
-        payload = cbor.dumps(contents)
-        print ("---------------------------")
-        print ("  execute_del   ", path, contents, payload)
 
-      if do_del:
-        response = nclient.delete(path, None, None, **ct)
-        client_callback(response)
+      response = nclient.delete(path, None, None, **ct)
+      client_callback(response)
         #nclient.stop()
         #sys.exit(2)
-        print ("=======")
-        
-        if do_exit:
-          sys.exit(2)
+      print ("=======")
 
 
-def execute_post(mypath, ct_value):
+
+def execute_put(mypath, ct_value, accept, content):
       print ("---------------------------")
-      print ("execute_post: ", ct_value, mypath)
+      print ("execute_put: ", ct_value, mypath)
       do_exit = False
       ct = {}
-      ct['accept'] = ct_value
+      ct['accept'] = accept
       ct['content_type'] = ct_value
       
       if mypath.startswith("coap://") == False:
@@ -317,70 +380,27 @@ def execute_post(mypath, ct_value):
       nclient = HelperClient(server=(host, port))
       nclientcheck = HelperClient(server=(host, port))
       payload = 0
-      do_post = False
-      if path == "fp/g":
-        do_post = True
-        # do_exit = True
-        contents = [ {"id": 1, "href": "xxxx", "cflag": [1,2,3,4,5], "ga":[2222,3333]} ]
-        payload = cbor.dumps(contents)
-        ct['content_type'] = 60
-        ct['accept'] = 60
-        print ("---------------------------")
-        print ("  execute_post   ", path, contents, payload)
-        contents_i = cbor.loads(payload)
-        print ("  ", contents)
-        print ("  ", contents_i)
-        print ("---------------------------")
-      if path == "fp/p":
-        do_post = True
-        # do_exit = True
-        contents = [{"id": 7, "ia": "myiid.5", "path": "mypath-p", "ga":[2305, 2306, 2307, 2308]} ]
-        payload = cbor.dumps(contents)
-        ct['content_type'] = 60
-        ct['accept'] = 60
-        print ("---------------------------")
-        print ("  execute_post   ", path, contents, payload)
-        contents_i = cbor.loads(payload)
-        print ("  ", contents)
-        print ("  ", contents_i)
-        print ("---------------------------")
-      if path == "fp/r":
-        do_post = True
-        # do_exit = True
-        contents = [ {"id": 5, "ia": "myiid.5", "path": "mypath-r", "ga":[2222,3333]} ]
-        payload = cbor.dumps(contents)
-        ct['content_type'] = 60
-        ct['accept'] = 60
-        print ("---------------------------")
-        print ("  execute_post   ", path, contents, payload)
-        contents_i = cbor.loads(payload)
-        print ("  ", contents)
-        print ("  ", contents_i)
-        print ("---------------------------")
-      if do_post:
-        response = nclient.post(path, payload, None, None , None, **ct)
-        client_callback(response)
-        nclient.stop()
-        #sys.exit(2)
-        #print ("=======")
-        #response_check = nclientcheck.get(path, None, None, **ct)
-        #client_callback(response_check, payload)
-        #nclientcheck.stop()
-        #print ("=======")
-        
-        if do_exit:
-          sys.exit(2)
 
-def execute_put(mypath, ct_value):
-      #print ("---------------------------")
-      #print ("execute_put: ", ct_value, mypath)
+      if accept == 60:
+        payload = cbor.dumps(content)
+      else:
+        payload = content
+      print ("payload: ", payload)
+      response = nclient.put(path, payload, None, None , None, **ct)
+      client_callback(response)
+      nclient.stop()
+      
+      
+def execute_post(mypath, ct_value, accept, content):
+      print ("---------------------------")
+      print ("execute_post: ", ct_value, mypath)
       do_exit = False
       ct = {}
-      ct['accept'] = ct_value
+      ct['accept'] = accept
       ct['content_type'] = ct_value
       
       if mypath.startswith("coap://") == False:
-        #print(" not executing: ", mypath);
+        print(" not executing: ", mypath);
         return
       
       host, port, path = parse_uri(mypath)
@@ -392,63 +412,14 @@ def execute_put(mypath, ct_value):
       nclient = HelperClient(server=(host, port))
       nclientcheck = HelperClient(server=(host, port))
       payload = 0
-      do_put = False
-      if path.__contains__("dev/ia"):
-        do_put = True
-        contents = 5 # string
-        payload = cbor.dumps(contents)
-        print ("---------------------------")
-        print ("  execute_put   ", path, contents, payload)
-        contents_i = cbor.loads(payload)
-        print ("  ", contents)
-        print ("  ", contents_i)
-        print ("---------------------------")
-      if path.__contains__("dev/iid"):
-        do_put = True
-        contents = "25345" # string
-        payload = cbor.dumps(contents)
-        print ("---------------------------")
-        print ("  execute_put   ", path, contents, payload)
-        contents_i = cbor.loads(payload)
-        print ("  ", contents)
-        print ("  ", contents_i)
-        print ("---------------------------")
-      if path.__contains__("dev/hostname"):
-        do_put = True
-        contents = "new host name" # string
-        payload = cbor.dumps(contents)
-        print ("---------------------------")
-        print ("  execute_put   ", path, contents, payload)
-        contents_i = cbor.loads(payload)
-        print ("  ", contents)
-        print ("  ", contents_i)
-        print ("---------------------------")
-        # do_exit = True
-      if path.__contains__("dev/pm"):
-        do_put = True
-        contents = True # string
-        payload = cbor.dumps(contents)
-        print ("---------------------------")
-        print ("  execute_put   ", path, contents, payload)
-        contents_i = cbor.loads(payload)
-        print ("  ", contents)
-        print ("  ", contents_i)
-        print ("---------------------------")
-        do_exit = True
-      if do_put:
-        response = nclient.put(path, payload, None, None , None, **ct)
-        client_callback(response)
-        nclient.stop()
-        #sys.exit(2)
-        print ("=======")
-        response_check = nclientcheck.get(path, None, None, **ct)
-        client_callback(response_check, payload)
-        nclientcheck.stop()
-        print ("=======")
-        
-        if do_exit:
-          sys.exit(2)
-        
+
+      if accept == 60:
+        payload = cbor.dumps(content)
+      else:
+        payload = content
+      response = nclient.post(path, payload, None, None , None, **ct)
+      client_callback(response)
+      nclient.stop()
 
 
 def main():  # pragma: no cover
@@ -533,7 +504,6 @@ def main():  # pragma: no cover
             #print ("JSON ::")
             print (response.payload.decode())
             print ("\n\n")
-            convertlinkformat2links(response.payload.decode())
             
             
         if response.content_type == defines.Content_types["application/vnd.ocf+cbor"]:
@@ -642,7 +612,7 @@ def main():  # pragma: no cover
                 #json_string = json.dumps(json_data, indent=2, sort_keys=True)
                 print (response.payload.decode())
                 # do_get(response.payload.decode(), client)
-                client_callback(response)
+                client_callback_discovery(response)
         
         counter = 2
         try:
@@ -654,7 +624,7 @@ def main():  # pragma: no cover
            print("Client Shutdown")
            #client.stop()
            
-        execute_list()
+        #execute_list()
         client.stop()
     else:
         print("Operation not recognized")
