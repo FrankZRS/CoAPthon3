@@ -261,6 +261,7 @@ class MessageLayer(object):
         :return: the created transaction
         """
         logger.debug("send_request - " + str(request))
+        print("send_request - " + str(request))
         assert isinstance(request, Request)
         try:
             host, port = request.destination

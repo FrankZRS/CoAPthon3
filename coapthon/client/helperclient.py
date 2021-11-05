@@ -32,7 +32,10 @@ class HelperClient(object):
             self.server = server
         else:
             self.server = (server_ip, server[1])
-        self.protocol = CoAP(self.server, random.randint(1, 65535), self._wait_response, sock=sock,
+            
+        port = random.randint(1, 65535)
+        print(" using port: ", port)
+        self.protocol = CoAP(self.server, port, self._wait_response, sock=sock,
                              cb_ignore_read_exception=cb_ignore_read_exception, cb_ignore_write_exception=cb_ignore_write_exception)
         self.queue = Queue()
 
@@ -229,6 +232,8 @@ class HelperClient(object):
           request = self.mk_request_non(defines.Codes.GET, "/oic/res")
         else:
           request = self.mk_request_non(defines.Codes.GET, path)
+          #print("discover: path:", path)
+          
         # request.token = generate_random_token(2)
         request.token = generate_random_token(4)
         print ("discover : path=", path)
