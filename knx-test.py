@@ -300,10 +300,44 @@ def do_sequence_knx_knx(my_base):
     execute_post("coap://"+my_base+"/.knx", 60, 60, content)
     execute_get("coap://"+my_base+"/.knx", 60)
 
-def do_sequence(my_base):
 
+def do_sequence_knx_spake(my_base):
+
+    #  url, content, accept, contents
+    
+    # sequence:
+    # - parameter exchange: 15 (rnd)- return value
+    # - credential exchange: 10 - return value
+    # - pase verification exchange: 14  - no return value
+    
+    content = { 15: b"a-15-sdfsdred"}
+    execute_post("coap://"+my_base+"/.well-known/knx/spake", 60, 60, content)
+    
+    # pa
+    content = { 10: b"s10dfsdfsfs" }
+    execute_post("coap://"+my_base+"/.well-known/knx/spake", 60, 60, content)
+    
+    # ca
+    content = { 14: b"a15sdfsdred"}
+    execute_post("coap://"+my_base+"/.well-known/knx/spake", 60, 60, content)
+    # expecting return 
+    
+
+def do_sequence_knx_idevid(my_base):
+    #  url, content, accept, contents
+    execute_get("coap://"+my_base+"/.well-known/knx/idevid", 282)
+    
+def do_sequence_knx_ldevid(my_base):
+    #  url, content, accept, contents
+    execute_get("coap://"+my_base+"/.well-known/knx/ldevid", 282)
+
+
+def do_sequence(my_base):
+    
+    #return
     do_sequence_dev(my_base)
     
+    #return
     do_sequence_fp_g_int(my_base)
     #do_sequence_fp_g(my_base)
     
@@ -319,6 +353,11 @@ def do_sequence(my_base):
     # .knx
     do_sequence_knx_knx_int(my_base)
     #do_sequence_knx_knx(my_base)
+    
+    do_sequence_knx_spake(my_base)
+    do_sequence_knx_idevid(my_base)
+    do_sequence_knx_ldevid(my_base)
+    
         
 
 def client_callback_discovery(response, checkdata=None):
