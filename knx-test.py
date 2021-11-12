@@ -332,8 +332,41 @@ def do_sequence_knx_ldevid(my_base):
     execute_get("coap://"+my_base+"/.well-known/knx/ldevid", 282)
 
 
+def do_sequence_knx_osn(my_base):
+    #  url, content, accept, contents
+    execute_get("coap://"+my_base+"/.well-known/knx/osn", 60)
+
+
+def do_sequence_knx_crc(my_base):
+    #  url, content, accept, contents
+    execute_get("coap://"+my_base+"/.well-known/knx/crc", 60)
+    
+    
+def do_sequence_oscore(my_base):
+    #  url, content, accept, contents
+    execute_get("coap://"+my_base+"/f/oscore", 40)
+    
+    execute_get("coap://"+my_base+"/p/oscore/replwdo", 60)
+    content = 105 
+    execute_put("coap://"+my_base+"/p/oscore/replwdo", 60, 60, content)
+    execute_get("coap://"+my_base+"/p/oscore/replwdo", 60)
+    
+    execute_get("coap://"+my_base+"/p/oscore/osndelay", 60)
+    content =  1050
+    execute_put("coap://"+my_base+"/p/oscore/osndelay", 60, 60, content)
+    execute_get("coap://"+my_base+"/p/oscore/osndelay", 60)
+
+
+def do_sequence_core_knx(my_base):
+    #  url, content, accept, contents
+    execute_get("coap://"+my_base+"/.well-known/knx", 60)
+    content = { 1 : 5, 2: "reset"}
+    execute_post("coap://"+my_base+"/.well-known/knx", 60, 60, content)
+    
+
 def do_sequence(my_base):
     
+    #do_sequence_core_knx(my_base)
     #return
     do_sequence_dev(my_base)
     
@@ -357,6 +390,11 @@ def do_sequence(my_base):
     do_sequence_knx_spake(my_base)
     do_sequence_knx_idevid(my_base)
     do_sequence_knx_ldevid(my_base)
+    do_sequence_knx_crc(my_base)
+    do_sequence_knx_osn(my_base)
+    
+    do_sequence_oscore(my_base)
+    do_sequence_core_knx(my_base)
     
         
 
