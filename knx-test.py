@@ -363,11 +363,17 @@ def do_sequence_core_knx(my_base):
     content = { 1 : 5, 2: "reset"}
     execute_post("coap://"+my_base+"/.well-known/knx", 60, 60, content)
     
+    
+def do_sequence_a_sen(my_base):
+    #  url, content, accept, contents
+    content = {2: "reset"}
+    execute_post("coap://"+my_base+"/a/sen", 60, 60, content)
+    
 
 def do_sequence(my_base):
     
-    #do_sequence_core_knx(my_base)
-    #return
+    do_sequence_a_sen(my_base)
+    return
     do_sequence_dev(my_base)
     
     #return
