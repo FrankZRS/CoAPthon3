@@ -62,13 +62,78 @@ def get_base_from_link(payload):
         return my_base
         
 
+def get_sn(my_base):
+    print("Get SN :");
+    sn = execute_get("coap://"+my_base+"/dev/sn", 60)
+    json_data = cbor.loads(sn.payload)
+    #print ("SN : ", json_data)
+    return json_data
+
+def install(my_base):
+    sn = get_sn(my_base)
+    print (" SN : ", sn)
+    iid = "5"  # installation id
+    if "000001" == sn :
+       # sensor, e.g sending  
+       print ("installing SN ", sn)
+       content = True
+       print("set PM :", content);
+       execute_put("coap://"+my_base+"/dev/pm", 60, 60, content)
+       content = 1
+       print("set IA :", content);
+       execute_put("coap://"+my_base+"/dev/ia", 60, 60, content)
+       content = iid
+       execute_put("coap://"+my_base+"/dev/iid", 60, 60, content)
+       # id (0)= 1
+       # url (11)= /p/light
+       # ga (7 )= 1
+       # cflags (8) = ["r" ] ; read = 1, write = 2, transmit = 3 update = 4
+       content = [ {0: 1, 11: "p/push", 7:[1], 8: [2] } ] 
+       execute_post("coap://"+my_base+"/fp/g", 60, 60, content)
+       # id (0)= 1
+       # ia (12)
+       # url (11)= .knx
+       # ga (7 )= 1
+       # cflags (8) = ["r" ] ; read = 1, write = 2, transmit = 3 update = 4
+       content = [ {0: 1, 11: ".knx", 7:[1], 12 :"blah.blah" } ] 
+       execute_post("coap://"+my_base+"/fp/r", 60, 60, content)
+       
+    if "000002" == sn :
+       # actuator ==> receipient
+       # should use /fp/r
+       print ("installing SN ", sn)
+       content = True
+       print("set PM :", content);
+       execute_put("coap://"+my_base+"/dev/pm", 60, 60, content)
+       content = 2
+       print("set IA :", content);
+       execute_put("coap://"+my_base+"/dev/ia", 60, 60, content)
+       content = iid
+       execute_put("coap://"+my_base+"/dev/iid", 60, 60, content)
+       # id (0)= 1
+       # url (11)= /p/light
+       # ga (7 )= 1
+       # cflags (8) = ["r" ] ; read = 1, write = 2, transmit = 3 update = 4
+       content = [ {0: 1, 11: "/p/light", 7:[1], 8: [1] } ] 
+       execute_post("coap://"+my_base+"/fp/g", 60, 60, content)
+       # id (0)= 1
+       # ia (12)
+       # url (11)= .knx
+       # ga (7 )= 1
+       # cflags (8) = ["r" ] ; read = 1, write = 2, transmit = 3 update = 4
+       content = [ {0: 1, 11: ".knx", 7:[1], 12 :"blah.blah" } ] 
+       execute_post("coap://"+my_base+"/fp/p", 60, 60, content)
+
 
 # no json tags as strings
 def do_sequence_dev(my_base):
 
     print("===================")
     print("Get SN :");
-    execute_get("coap://"+my_base+"/dev/sn", 60)
+    sn = execute_get("coap://"+my_base+"/dev/sn", 60)
+    sn = get_sn(my_base)
+    print (" SN : ", sn)
+   
 
     print("===================")
     print("Get HWT :");
@@ -369,12 +434,38 @@ def do_sequence_a_sen(my_base):
     content = {2: "reset"}
     execute_post("coap://"+my_base+"/a/sen", 60, 60, content)
     
+    
+def do_sequence_auth(my_base):
+    #  url, content, accept, contents
+    
+    execute_get("coap://"+my_base+"/auth", 40)
+    
+    
+def do_sequence_auth_at(my_base):
+    #  url, content, accept, contents
+    
+    execute_get("coap://"+my_base+"/auth/at", 40)
+    # 
+    content = {0: b"id", 1 : 20, 2:b"ms",3:"hkdf", 4:"alg", 5:b"salt", 6:b"contextId"}
+    execute_post("coap://"+my_base+"/auth/at", 60, 60, content)
+    
+    
+    content = {0: b"id2", 1 : 20, 2:b"ms",3:"hkdf", 4:"alg", 5:b"salt", 6:b"contextId2"}
+    execute_post("coap://"+my_base+"/auth/at", 60, 60, content)
+    
+    execute_get("coap://"+my_base+"/auth/at", 40)
+    
+    execute_get("coap://"+my_base+"/auth/at/id", 60)
+    execute_del("coap://"+my_base+"/auth/at/id", 60)
+    
 
 def do_sequence(my_base):
     
-    do_sequence_a_sen(my_base)
+    #sn = get_sn(my_base)
+    install(my_base)
     return
     do_sequence_dev(my_base)
+    
     
     #return
     do_sequence_fp_g_int(my_base)
@@ -401,6 +492,10 @@ def do_sequence(my_base):
     
     do_sequence_oscore(my_base)
     do_sequence_core_knx(my_base)
+    
+    do_sequence_a_sen(my_base)
+    do_sequence_auth(my_base)
+    do_sequence_auth_at(my_base)
     
         
 
@@ -553,6 +648,7 @@ def execute_get(mypath, ct_value):
       response = nclient.get(path, None, None, **ct)
       client_callback(response)
       nclient.stop()
+      return response
 
 def execute_del(mypath, ct_value):
       print ("---------------------------")
