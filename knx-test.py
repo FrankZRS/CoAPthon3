@@ -84,18 +84,24 @@ def install(my_base):
        execute_put("coap://"+my_base+"/dev/ia", 60, 60, content)
        content = iid
        execute_put("coap://"+my_base+"/dev/iid", 60, 60, content)
+       # group object table
        # id (0)= 1
        # url (11)= /p/light
        # ga (7 )= 1
        # cflags (8) = ["r" ] ; read = 1, write = 2, transmit = 3 update = 4
        content = [ {0: 1, 11: "p/push", 7:[1], 8: [2] } ] 
        execute_post("coap://"+my_base+"/fp/g", 60, 60, content)
+       
+       execute_get("coap://"+my_base+"/fp/g", 40)
+       
+       
+       # reciepient table
        # id (0)= 1
        # ia (12)
        # url (11)= .knx
        # ga (7 )= 1
        # cflags (8) = ["r" ] ; read = 1, write = 2, transmit = 3 update = 4
-       content = [ {0: 1, 11: ".knx", 7:[1], 12 :"blah.blah" } ] 
+       content = [ {0: 1, 11: "/p/push", 7:[1], 12 :"blah.blah" } ] 
        execute_post("coap://"+my_base+"/fp/r", 60, 60, content)
        
     if "000002" == sn :
@@ -110,12 +116,16 @@ def install(my_base):
        execute_put("coap://"+my_base+"/dev/ia", 60, 60, content)
        content = iid
        execute_put("coap://"+my_base+"/dev/iid", 60, 60, content)
+       # group object table
        # id (0)= 1
        # url (11)= /p/light
        # ga (7 )= 1
        # cflags (8) = ["r" ] ; read = 1, write = 2, transmit = 3 update = 4
-       content = [ {0: 1, 11: "/p/light", 7:[1], 8: [1] } ] 
+       content = [ { 0: 1, 11: "/p/light", 7:[1], 8: [1] } ] 
        execute_post("coap://"+my_base+"/fp/g", 60, 60, content)
+       
+       execute_get("coap://"+my_base+"/fp/g", 40)
+       # publisher table
        # id (0)= 1
        # ia (12)
        # url (11)= .knx
@@ -123,6 +133,13 @@ def install(my_base):
        # cflags (8) = ["r" ] ; read = 1, write = 2, transmit = 3 update = 4
        content = [ {0: 1, 11: ".knx", 7:[1], 12 :"blah.blah" } ] 
        execute_post("coap://"+my_base+"/fp/p", 60, 60, content)
+
+    # do a post
+    content = {"sia": 5678, "st": 55, "ga": 1, "value": 100 }
+    content = { 4: 5678, "st": 55, 7: 1, "value": 100 }
+    #                 st       ga       value (1)
+    content = { 5: { 6: 1, 7: 1, 1: True } } 
+    execute_post("coap://"+my_base+"/.knx", 60, 60, content)
 
 
 # no json tags as strings
@@ -715,6 +732,8 @@ def execute_put(mypath, ct_value, accept, content):
 def execute_post(mypath, ct_value, accept, content):
       print ("---------------------------")
       print ("execute_post: ", ct_value, mypath)
+      print (content)
+      print ("     ---------------------")
       do_exit = False
       ct = {}
       ct['accept'] = accept
