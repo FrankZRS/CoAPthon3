@@ -133,6 +133,8 @@ def install(my_base):
        # cflags (8) = ["r" ] ; read = 1, write = 2, transmit = 3 update = 4
        content = [ {0: 1, 11: ".knx", 7:[1], 12 :"blah.blah" } ] 
        execute_post("coap://"+my_base+"/fp/p", 60, 60, content)
+       
+       
 
     # do a post
     content = {"sia": 5678, "st": 55, "ga": 1, "value": 100 }
@@ -142,7 +144,9 @@ def install(my_base):
     execute_post("coap://"+my_base+"/.knx", 60, 60, content)
     
     content = { 5: { 6: 1, 7: 1, 1: False } } 
-    execute_post("coap://"+my_base+"/.knx", 60, 60, content)
+    #execute_post("coap://"+my_base+"/.knx", 60, 60, content)
+    execute_post("coap://[FF02::FD]:5683/.knx", 60, 60, content)
+    
 
 
 # no json tags as strings
