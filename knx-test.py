@@ -140,6 +140,9 @@ def install(my_base):
     #                 st       ga       value (1)
     content = { 5: { 6: 1, 7: 1, 1: True } } 
     execute_post("coap://"+my_base+"/.knx", 60, 60, content)
+    
+    content = { 5: { 6: 1, 7: 1, 1: False } } 
+    execute_post("coap://"+my_base+"/.knx", 60, 60, content)
 
 
 # no json tags as strings
