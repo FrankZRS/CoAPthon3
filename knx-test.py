@@ -75,7 +75,13 @@ def install(my_base):
     iid = "5"  # installation id
     if "000001" == sn :
        # sensor, e.g sending  
-       print ("installing SN ", sn)
+       print ("--------------------")
+       print ("Installing SN: ", sn)
+       
+       content = { 2: "reset"}
+       print("reset :", content);
+       execute_post("coap://"+my_base+"/.well-known/knx", 60, 60, content)
+       
        content = True
        print("set PM :", content);
        execute_put("coap://"+my_base+"/dev/pm", 60, 60, content)
@@ -95,7 +101,7 @@ def install(my_base):
        execute_get("coap://"+my_base+"/fp/g", 40)
        
        
-       # reciepient table
+       # recipient table
        # id (0)= 1
        # ia (12)
        # url (11)= .knx
@@ -104,10 +110,16 @@ def install(my_base):
        content = [ {0: 1, 11: "/p/push", 7:[1], 12 :"blah.blah" } ] 
        execute_post("coap://"+my_base+"/fp/r", 60, 60, content)
        
+       content = False
+       print("set PM :", content);
+       execute_put("coap://"+my_base+"/dev/pm", 60, 60, content)
+       
+       
     if "000002" == sn :
        # actuator ==> receipient
        # should use /fp/r
-       print ("installing SN ", sn)
+       print ("--------------------")
+       print ("installing SN: ", sn)
        content = True
        print("set PM :", content);
        execute_put("coap://"+my_base+"/dev/pm", 60, 60, content)
@@ -133,6 +145,10 @@ def install(my_base):
        # cflags (8) = ["r" ] ; read = 1, write = 2, transmit = 3 update = 4
        content = [ {0: 1, 11: ".knx", 7:[1], 12 :"blah.blah" } ] 
        execute_post("coap://"+my_base+"/fp/p", 60, 60, content)
+       
+       content = False
+       print("set PM :", content);
+       execute_put("coap://"+my_base+"/dev/pm", 60, 60, content)
        
        
 
@@ -577,8 +593,12 @@ def client_callback(response, checkdata=None):
             #json_data = loads(response.payload)
             #print(json_data)
             #print ("=========")
-            json_data = cbor.loads(response.payload)
-            json_string = json.dumps(json_data, indent=2, sort_keys=True)
+            json_string = ""
+            try:
+                json_data = cbor.loads(response.payload)
+                json_string = json.dumps(json_data, indent=2, sort_keys=True)
+            except:
+                print("error in cbor loading")
             print (json_string)
             print ("===+++===")
             if checkdata is not None:
@@ -757,10 +777,11 @@ def execute_post(mypath, ct_value, accept, content):
       except socket.gaierror:
         pass
       nclient = HelperClient(server=(host, port))
-      nclientcheck = HelperClient(server=(host, port))
+      #nclientcheck = HelperClient(server=(host, port))
       payload = 0
 
       if accept == 60:
+        #print(" content :", content)
         payload = cbor.dumps(content)
       else:
         payload = content
