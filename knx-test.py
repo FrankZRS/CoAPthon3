@@ -90,6 +90,12 @@ def install(my_base):
        execute_put("coap://"+my_base+"/dev/ia", 60, 60, content)
        content = iid
        execute_put("coap://"+my_base+"/dev/iid", 60, 60, content)
+       
+       
+       content = { 2: "startLoading"}
+       print("lsm :", content);
+       execute_post("coap://"+my_base+"/a/lsm", 60, 60, content)
+       execute_get("coap://"+my_base+"/a/lsm", 60)
        # group object table
        # id (0)= 1
        # url (11)= /p/light
@@ -114,6 +120,11 @@ def install(my_base):
        print("set PM :", content);
        execute_put("coap://"+my_base+"/dev/pm", 60, 60, content)
        
+       content = { 2: "loadComplete"}
+       print("lsm :", content);
+       execute_post("coap://"+my_base+"/a/lsm", 60, 60, content)
+       execute_get("coap://"+my_base+"/a/lsm", 60)
+       
        
     if "000002" == sn :
        # actuator ==> receipient
@@ -128,6 +139,13 @@ def install(my_base):
        execute_put("coap://"+my_base+"/dev/ia", 60, 60, content)
        content = iid
        execute_put("coap://"+my_base+"/dev/iid", 60, 60, content)
+       
+       
+       content = { 2: "startLoading"}
+       print("lsm :", content);
+       execute_post("coap://"+my_base+"/a/lsm", 60, 60, content)
+       execute_get("coap://"+my_base+"/a/lsm", 60)
+       
        # group object table
        # id (0)= 1
        # url (11)= /p/light
@@ -149,6 +167,11 @@ def install(my_base):
        content = False
        print("set PM :", content);
        execute_put("coap://"+my_base+"/dev/pm", 60, 60, content)
+       
+       content = { 2: "loadComplete"}
+       print("lsm :", content);
+       execute_post("coap://"+my_base+"/a/lsm", 60, 60, content)
+       execute_get("coap://"+my_base+"/a/lsm", 60)
        
        
 
@@ -598,7 +621,7 @@ def client_callback(response, checkdata=None):
                 json_data = cbor.loads(response.payload)
                 json_string = json.dumps(json_data, indent=2, sort_keys=True)
             except:
-                print("error in cbor loading")
+                print("error in cbor..")
             print (json_string)
             print ("===+++===")
             if checkdata is not None:
