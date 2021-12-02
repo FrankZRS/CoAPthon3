@@ -180,11 +180,11 @@ def install(my_base):
     content = { 4: 5678, "st": 55, 7: 1, "value": 100 }
     #                 st       ga       value (1)
     content = { 5: { 6: 1, 7: 1, 1: True } } 
-    execute_post("coap://"+my_base+"/.knx", 60, 60, content)
+    # execute_post("coap://"+my_base+"/.knx", 60, 60, content)
     
     content = { 5: { 6: 1, 7: 1, 1: False } } 
     #execute_post("coap://"+my_base+"/.knx", 60, 60, content)
-    execute_post("coap://[FF02::FD]:5683/.knx", 60, 60, content)
+    # execute_post("coap://[FF02::FD]:5683/.knx", 60, 60, content)
     
 
 
