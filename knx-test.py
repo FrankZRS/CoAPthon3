@@ -179,12 +179,12 @@ def install(my_base):
     content = {"sia": 5678, "st": 55, "ga": 1, "value": 100 }
     content = { 4: 5678, "st": 55, 7: 1, "value": 100 }
     #                 st       ga       value (1)
-    content = { 5: { 6: 1, 7: 1, 1: True } } 
-    # execute_post("coap://"+my_base+"/.knx", 60, 60, content)
-    
-    content = { 5: { 6: 1, 7: 1, 1: False } } 
+    #content = { 5: { 6: 1, 7: 1, 1: True } } 
     #execute_post("coap://"+my_base+"/.knx", 60, 60, content)
-    # execute_post("coap://[FF02::FD]:5683/.knx", 60, 60, content)
+    
+    content = {4: 5678, 5: { 6: 1, 7: 1, 1: False } } 
+    #execute_post("coap://"+my_base+"/.knx", 60, 60, content)
+    #execute_post("coap://[FF02::FD]:5683/.knx", 60, 60, content)
     
 
 
@@ -521,6 +521,15 @@ def do_sequence_auth_at(my_base):
     execute_get("coap://"+my_base+"/auth/at/id", 60)
     execute_del("coap://"+my_base+"/auth/at/id", 60)
     
+    
+def do_sequence_f(my_base):
+
+    #  url, content, accept, contents
+    execute_get("coap://"+my_base+"/f", 40)
+    # note this one is a bit dirty hard coded...
+    execute_get("coap://"+my_base+"/f/417", 40)
+    execute_get("coap://"+my_base+"/.well-known/core", 40)
+    
 
 def do_sequence(my_base):
     
@@ -559,6 +568,8 @@ def do_sequence(my_base):
     do_sequence_a_sen(my_base)
     do_sequence_auth(my_base)
     do_sequence_auth_at(my_base)
+    
+    do_sequence_f(my_base)
     
         
 
