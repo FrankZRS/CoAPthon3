@@ -113,6 +113,7 @@ class MessageLayer(object):
         key_mid_multicast_ipv6 = str_append_hash(defines.ALL_COAP_NODES_IPV6, 5683, response.mid)
         key_mid_multicast_ocf_5 = str_append_hash(defines.ALL_OCF_NODES_S5_IPV6, 5683, response.mid)
         key_mid_multicast_ocf_3 = str_append_hash(defines.ALL_OCF_NODES_S3_IPV6, 5683, response.mid)
+        key_mid_rloc = str_append_hash(defines.THREAD_RLOC_FIXED, 5683, response.mid)
         key_token = str_append_hash(host, port, response.token)
         key_token_multicast = str_append_hash(defines.ALL_COAP_NODES, 5683, response.token)
         key_token_multicast_ipv6 = str_append_hash(defines.ALL_COAP_NODES_IPV6, 5683, response.token)
@@ -120,6 +121,7 @@ class MessageLayer(object):
         key_token_multicast_ipv6_site = str_append_hash(defines.ALL_COAP_NODES_IPV6_SITE, 5683, response.token)
         key_token_multicast_ocf_5 = str_append_hash(defines.ALL_OCF_NODES_S5_IPV6, 5683, response.token)
         key_token_multicast_ocf_3 = str_append_hash(defines.ALL_OCF_NODES_S3_IPV6, 5683, response.token)
+        key_token_rloc = str_append_hash(defines.THREAD_RLOC_FIXED, 5683, response.token)
 
         if key_mid in list(self._transactions.keys()):
             transaction = self._transactions[key_mid]
@@ -157,6 +159,11 @@ class MessageLayer(object):
                 return None, False
         elif key_token_multicast_ocf_3 in self._transactions_token:
             transaction = self._transactions_token[key_token_multicast_ocf_3]
+            if response.token != transaction.request.token:
+                logger.warning("Tokens does not match -  response message " + str(host) + ":" + str(port))
+                return None, False
+        elif key_token_rloc in self._transactions_token:
+            transaction = self._transactions_token[key_token_rloc]
             if response.token != transaction.request.token:
                 logger.warning("Tokens does not match -  response message " + str(host) + ":" + str(port))
                 return None, False
@@ -276,10 +283,15 @@ class MessageLayer(object):
         if transaction.request.mid is None:
             transaction.request.mid = self.fetch_mid()
 
-        key_mid = str_append_hash(host, port, request.mid)
+        if host.lower()[-19:-5] == defines.THREAD_RLOC_FIXED:
+            key_mid = str_append_hash(defines.THREAD_RLOC_FIXED, 5683, request.mid)
+            key_token = str_append_hash(defines.THREAD_RLOC_FIXED, 5683, request.token)
+        else:
+            key_mid = str_append_hash(host, port, request.mid)
+            key_token = str_append_hash(host, port, request.token)
+            
         self._transactions[key_mid] = transaction
 
-        key_token = str_append_hash(host, port, request.token)
         #print ("send_request token:", key_token)
         #print ("send_request host:", host)
         #print ("send_request port:", port)

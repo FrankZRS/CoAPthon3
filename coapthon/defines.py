@@ -37,6 +37,9 @@ ALL_OCF_NODES_S5_IPV6 = "FF05::158"
 # scope site local
 ALL_OCF_NODES_S3_IPV6 = "FF03::158"
 
+# always present in thread RLOC
+THREAD_RLOC_FIXED = "0000:00ff:fe00"
+
 #MAX_PAYLOAD = 1024
 MAX_PAYLOAD = 1024
 
